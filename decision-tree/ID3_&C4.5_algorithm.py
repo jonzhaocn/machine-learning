@@ -21,24 +21,6 @@ def create_data_set():
 
     结果-》 好瓜：Y | 坏瓜：N
 
-    data_set = [[0, 0, 0, 0, 0, 0, 0.697, 0.460, 'Y'],
-                [1, 0, 1, 0, 0, 0, 0.774, 0.376, 'Y'],
-                [1, 0, 0, 0, 0, 0, 0.634, 0.264, 'Y'],
-                [0, 0, 1, 0, 0, 0, 0.608, 0.318, 'Y'],
-                [2, 0, 0, 0, 0, 0, 0.556, 0.215, 'Y'],
-                [0, 1, 0, 0, 1, 1, 0.403, 0.237, 'Y'],
-                [1, 1, 0, 1, 1, 1, 0.481, 0.149, 'Y'],
-                [1, 1, 0, 0, 1, 0, 0.437, 0.211, 'Y'],
-                [1, 1, 1, 1, 1, 0, 0.666, 0.091, 'N'],
-                [0, 2, 2, 0, 2, 1, 0.243, 0.267, 'N'],
-                [2, 2, 2, 2, 2, 0, 0.245, 0.057, 'N'],
-                [2, 0, 0, 2, 2, 1, 0.343, 0.099, 'N'],
-                [0, 1, 0, 1, 0, 0, 0.639, 0.161, 'N'],
-                [2, 1, 1, 1, 0, 0, 0.657, 0.198, 'N'],
-                [1, 1, 0, 0, 1, 1, 0.360, 0.370, 'N'],
-                [2, 0, 0, 2, 2, 0, 0.593, 0.042, 'N'],
-                [0, 0, 1, 1, 1, 0, 0.719, 0.103, 'N']]
-    """
     data_set = [['青绿', '蜷缩', '浊响', '清晰', '凹陷', '硬滑', 0.697, 0.460, '好瓜'],
                 ['乌黑', '蜷缩', '沉闷', '清晰', '凹陷', '硬滑', 0.774, 0.376, '好瓜'],
                 ['乌黑', '蜷缩', '浊响', '清晰', '凹陷', '硬滑', 0.634, 0.264, '好瓜'],
@@ -56,9 +38,35 @@ def create_data_set():
                 ['乌黑', '稍缩', '浊响', '清晰', '稍凹', '软粘', 0.360, 0.370, '坏瓜'],
                 ['浅白', '蜷缩', '浊响', '模糊', '平坦', '硬滑', 0.593, 0.042, '坏瓜'],
                 ['青绿', '蜷缩', '沉闷', '稍糊', '稍凹', '硬滑', 0.719, 0.103, '坏瓜']]
-    labels = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感', '密度', '含糖量']
+    """
+    data_set = [[0, 0, 0, 0, 0, 0, 0.697, 0.460, '好瓜'],
+                [1, 0, 1, 0, 0, 0, 0.774, 0.376, '好瓜'],
+                [1, 0, 0, 0, 0, 0, 0.634, 0.264, '好瓜'],
+                [0, 0, 1, 0, 0, 0, 0.608, 0.318, '好瓜'],
+                [2, 0, 0, 0, 0, 0, 0.556, 0.215, '好瓜'],
+                [0, 1, 0, 0, 1, 1, 0.403, 0.237, '好瓜'],
+                [1, 1, 0, 1, 1, 1, 0.481, 0.149, '好瓜'],
+                [1, 1, 0, 0, 1, 0, 0.437, 0.211, '好瓜'],
+                [1, 1, 1, 1, 1, 0, 0.666, 0.091, '坏瓜'],
+                [0, 2, 2, 0, 2, 1, 0.243, 0.267, '坏瓜'],
+                [2, 2, 2, 2, 2, 0, 0.245, 0.057, '坏瓜'],
+                [2, 0, 0, 2, 2, 1, 0.343, 0.099, '坏瓜'],
+                [0, 1, 0, 1, 0, 0, 0.639, 0.161, '坏瓜'],
+                [2, 1, 1, 1, 0, 0, 0.657, 0.198, '坏瓜'],
+                [1, 1, 0, 0, 1, 1, 0.360, 0.370, '坏瓜'],
+                [2, 0, 0, 2, 2, 0, 0.593, 0.042, '坏瓜'],
+                [0, 0, 1, 1, 1, 0, 0.719, 0.103, '坏瓜']]
+    labels_list = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感', '密度', '含糖量']
+    labels_dict = {'色泽': {0: '青绿', 1: '乌黑', 2: '浅白'},
+              '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
+              '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
+              '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
+              '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
+              '触感': {0: '硬滑', 1: '软粘'},
+              '密度': {},
+              '含糖量': {}}
     is_features_discrete = [1, 1, 1, 1, 1, 1, 0, 0]
-    return data_set, labels, is_features_discrete
+    return data_set, labels_list, labels_dict, is_features_discrete
 
 
 def is_all_sample_same(data_set):
@@ -92,25 +100,25 @@ def get_most_common_class(data_set):
     return sorted_class_count[0]
 
 
-def tree_generate(data_set, labels, is_features_discrete, ID3_or_C45):
+def tree_generate(data_set, labels_list, labels_dict, is_features_discrete, ID3_or_C45):
     # 检查样本是否已经同属于一类了
     class_list = [sample[-1] for sample in data_set]
     if class_list.count(class_list[0]) == len(class_list):
         return class_list[0]
 
     # 检查labels是否为空, dataSet在labels上的取值都一样（所有样本在所有属性上的取值一样）
-    if len(labels) == 0 or is_all_sample_same(data_set):
+    if len(labels_list) == 0 or is_all_sample_same(data_set):
         return get_most_common_class(data_set)
 
     # 从A中找出最优的属性值，进行划分
-    best_feature_index, best_continuous_feature_value = get_best_feature(data_set, labels, is_features_discrete, ID3_or_C45)
-    best_feature_label = labels[best_feature_index]
+    best_feature_index, best_continuous_feature_value = get_best_feature(data_set, labels_list, is_features_discrete, ID3_or_C45)
+    best_feature_label = labels_list[best_feature_index]
     # 如果该特征是离散型的，从数据中删除该特征
     if is_features_discrete[best_feature_index] == 1:
         tree = {best_feature_label: {}}
 
-        del(labels[best_feature_index])
         del(is_features_discrete[best_feature_index])
+        del (labels_list[best_feature_index])
 
         sub_features_list = [sample[best_feature_index] for sample in data_set]
         unique_sub_features = set(sub_features_list)
@@ -118,11 +126,12 @@ def tree_generate(data_set, labels, is_features_discrete, ID3_or_C45):
             # 往下继续生成树
             # 使用sub_labels来替代labels，传递到tree_generate函数，tree_generate会删除labels中的内容，
             # 如果一直传递同一个labels，会出现问题，sub_labels = labels[:]，相当于拷贝一个新的labels list
-            sub_labels = labels[:]
+            sub_labels_list = labels_list[:]
             sub_is_feature_discrete = is_features_discrete[:]
-            tree[best_feature_label][value] = tree_generate(split_data_set_by_operate(
+
+            tree[best_feature_label][labels_dict[best_feature_label][value]] = tree_generate(split_data_set_by_operate(
                 data_set, best_feature_index, value, operator.eq, delete_col=True),
-                sub_labels, sub_is_feature_discrete, ID3_or_C45)
+                sub_labels_list, labels_dict, sub_is_feature_discrete, ID3_or_C45)
     # 如果该特征是连续的，不需要从数据中删除该特征
     # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
     else:
@@ -130,10 +139,10 @@ def tree_generate(data_set, labels, is_features_discrete, ID3_or_C45):
         tree = {key: {}}
         tree[key]['是'] = tree_generate(split_data_set_by_operate(
             data_set, best_feature_index, best_continuous_feature_value, operator.le, delete_col=False),
-            labels, is_features_discrete, ID3_or_C45)
+            labels_list, labels_dict, is_features_discrete, ID3_or_C45)
         tree[key]['否'] = tree_generate(split_data_set_by_operate(
             data_set, best_feature_index, best_continuous_feature_value, operator.gt, delete_col=False),
-            labels, is_features_discrete, ID3_or_C45)
+            labels_list, labels_dict, is_features_discrete, ID3_or_C45)
     return tree
 
 
@@ -262,7 +271,7 @@ def get_best_feature(data_set, labels, is_features_discrete, ID3_or_C45):
 
 
 if __name__ == '__main__':
-    ID3_or_C45 = 1
-    data_set, labels, is_features_discrete = create_data_set()
-    decision_tree = tree_generate(data_set, labels, is_features_discrete, ID3_or_C45)
+    ID3_or_C45 = 0
+    data_set, labels_list, labels_dict, is_features_discrete = create_data_set()
+    decision_tree = tree_generate(data_set, labels_list, labels_dict, is_features_discrete, ID3_or_C45)
     treePlotter.createPlot(decision_tree)
