@@ -71,13 +71,15 @@ def create_data_set():
 
 def is_all_sample_same(data_set):
     """
-    检查data_set中的样本是否都同属于一类（如好瓜与坏瓜）
+    检查data_set中的样本在lables上的取值都相同
+    那如何比较连续特征的值呢
     :param data_set:
     :return:
     """
     for i in range(len(data_set) - 1):
-        sample1 = data_set[i]
-        sample2 = data_set[i + 1]
+        # 将sample中最后的分类结果去掉，只比较labels上的值是否完全一致
+        sample1 = data_set[i][:-1]
+        sample2 = data_set[i + 1][:-1]
         result = operator.eq(sample1, sample2)
         if result is False:
             return result
@@ -86,7 +88,8 @@ def is_all_sample_same(data_set):
 
 def get_most_common_class(data_set):
     """
-    获取样本中个数最多的类（如好瓜、坏瓜）
+    获取样本中个数最多的类
+    这里的类指的是最后的分类结果，如好瓜、坏瓜
     :param data_set:
     :return:
     """
