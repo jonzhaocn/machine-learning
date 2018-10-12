@@ -92,7 +92,7 @@ def get_most_common_class(data_set):
     return sorted_class_count[0]
 
 
-def tree_generate(data_set, labels, is_features_discrete):
+def tree_generate(data_set, labels, is_features_discrete, ID3_or_C45):
     # 检查样本是否已经同属于一类了
     class_list = [sample[-1] for sample in data_set]
     if class_list.count(class_list[0]) == len(class_list):
@@ -103,9 +103,9 @@ def tree_generate(data_set, labels, is_features_discrete):
         return get_most_common_class(data_set)
 
     # 从A中找出最优的属性值，进行划分
-    best_feature_index, best_continuous_feature_value = get_best_feature_index(data_set, labels, is_features_discrete)
+    best_feature_index, best_continuous_feature_value = get_best_feature(data_set, labels, is_features_discrete, ID3_or_C45)
     best_feature_label = labels[best_feature_index]
-
+    # 如果该特征是离散型的，从数据中删除该特征
     if is_features_discrete[best_feature_index] == 1:
         tree = {best_feature_label: {}}
 
@@ -121,14 +121,19 @@ def tree_generate(data_set, labels, is_features_discrete):
             sub_labels = labels[:]
             sub_is_feature_discrete = is_features_discrete[:]
             tree[best_feature_label][value] = tree_generate(split_data_set_by_operate(
-                data_set, best_feature_index, value, operator.eq, delete_col=True), sub_labels, sub_is_feature_discrete)
+                data_set, best_feature_index, value, operator.eq, delete_col=True),
+                sub_labels, sub_is_feature_discrete, ID3_or_C45)
+    # 如果该特征是连续的，不需要从数据中删除该特征
+    # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
     else:
         key = best_feature_label+'<='+str.format("%0.3f" % best_continuous_feature_value)
         tree = {key: {}}
         tree[key]['是'] = tree_generate(split_data_set_by_operate(
-            data_set, best_feature_index, best_continuous_feature_value, operator.le, delete_col=False), labels, is_features_discrete)
+            data_set, best_feature_index, best_continuous_feature_value, operator.le, delete_col=False),
+            labels, is_features_discrete, ID3_or_C45)
         tree[key]['否'] = tree_generate(split_data_set_by_operate(
-            data_set, best_feature_index, best_continuous_feature_value, operator.gt, delete_col=False), labels, is_features_discrete)
+            data_set, best_feature_index, best_continuous_feature_value, operator.gt, delete_col=False),
+            labels, is_features_discrete, ID3_or_C45)
     return tree
 
 
@@ -155,6 +160,15 @@ def calculate_information_entropy(data_set):
 
 
 def split_data_set_by_operate(data_set, col, value, operate, delete_col):
+    """
+    按照data set中某一列的值，对数据进行划分，划分成几个子集
+    :param data_set:
+    :param col:
+    :param value:
+    :param operate:
+    :param delete_col:
+    :return:
+    """
     new_data_set = []
     for sample in data_set:
         if delete_col is True:
@@ -168,7 +182,7 @@ def split_data_set_by_operate(data_set, col, value, operate, delete_col):
     return new_data_set
 
 
-def get_best_feature_index(data_set, labels, is_features_discrete):
+def get_best_feature(data_set, labels, is_features_discrete, ID3_or_C45):
     """
     从lables中找出最优划分属性
     :param data_set:
@@ -177,27 +191,34 @@ def get_best_feature_index(data_set, labels, is_features_discrete):
     """
     feature_num = len(labels)
     base_entropy = calculate_information_entropy(data_set)
-    best_gain = 0.0
-    best_feature_index = -1
-    best_continuous_feature_value = None
+    gain_list = []
+    gain_ratio_list = []
+    continuous_feature_value_list = []
+    epsilon = 1e-5
     for i in range(feature_num):
-        # 处理离散型的特征
+        # 处理离散型的特征，各个特征已经划分成特定的子集了，不需要再次进行划分
         if is_features_discrete[i] == 1:
             sub_features_list = [sample[i] for sample in data_set]
             unique_sub_features = set(sub_features_list)
             entropy = 0.0
+            iv = 0.0
             for value in unique_sub_features:
                 sub_data_set = split_data_set_by_operate(data_set, i, value, operator.eq, delete_col=True)
                 prob = float(len(sub_data_set)) / len(data_set)
                 entropy += prob * calculate_information_entropy(sub_data_set)
+                iv += prob * log(prob, 2)
             gain = base_entropy - entropy
-            if gain > best_gain:
-                best_gain = gain
-                best_feature_index = i
-        # 处理连续型的特征
+            gain_ratio = gain / (-iv+epsilon)
+            gain_list.append(gain)
+            gain_ratio_list.append(gain_ratio)
+            continuous_feature_value_list.append(None)
+        # 处理连续型的特征，需要手动进行划分，对特征中的各个值先从小排到大，再计算出连续两个值的中值，作为待定划分点
+        # 找到一个让信息熵最大的划分点
         else:
             continuous_best_gain = 0.0
             continuous_best_feature_value = -1
+            continuous_best_gain_ratio = 0.0
+
             sub_features_list = [sample[i] for sample in data_set]
             unique_sub_features = set(sub_features_list)
             unique_sub_features = sorted(unique_sub_features, reverse=False)
@@ -210,18 +231,38 @@ def get_best_feature_index(data_set, labels, is_features_discrete):
                 prob = float(len(sub_data_set_le)) / len(data_set)
                 entropy = prob * calculate_information_entropy(sub_data_set_le) + (1-prob) * calculate_information_entropy(sub_data_set_gt)
                 gain = base_entropy - entropy
+                iv = prob * log(prob, 2) + (1-prob) * log(1-prob, 2)
+                gain_ratio = gain / (-iv)
                 if gain > continuous_best_gain:
                     continuous_best_gain = gain
                     continuous_best_feature_value = value
-            if continuous_best_gain > best_gain:
-                best_gain = continuous_best_gain
-                best_feature_index = i
-                best_continuous_feature_value = continuous_best_feature_value
-
-    return best_feature_index, best_continuous_feature_value
+                    continuous_best_gain_ratio = gain_ratio
+            gain_list.append(continuous_best_gain)
+            gain_ratio_list.append(continuous_best_gain_ratio)
+            continuous_feature_value_list.append(continuous_best_feature_value)
+    # ID3直接找信息增益最高的那一个
+    if ID3_or_C45 == 0:
+        max_gain_index = gain_list.index(max(gain_list))
+        return max_gain_index, continuous_feature_value_list[max_gain_index]
+    # C45先从候选划分属性中找出信息增益高于平均水平的属性，再从中选择增益率最高的
+    elif ID3_or_C45 == 1:
+        average_gain = 0.0
+        for i in range(len(gain_list)):
+            average_gain += gain_list[i]
+        average_gain = average_gain / len(gain_list)
+        max_gain_ratio = 0
+        max_gain_ratio_index = -1
+        for i in range(len(gain_list)):
+            if gain_list[i] > average_gain and gain_ratio_list[i] > max_gain_ratio:
+                max_gain_ratio = gain_ratio_list[i]
+                max_gain_ratio_index = i
+        return max_gain_ratio_index, continuous_feature_value_list[max_gain_ratio_index]
+    else:
+        return None
 
 
 if __name__ == '__main__':
+    ID3_or_C45 = 1
     data_set, labels, is_features_discrete = create_data_set()
-    decision_tree = tree_generate(data_set, labels, is_features_discrete)
+    decision_tree = tree_generate(data_set, labels, is_features_discrete, ID3_or_C45)
     treePlotter.createPlot(decision_tree)
