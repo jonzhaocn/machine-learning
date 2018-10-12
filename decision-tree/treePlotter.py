@@ -1,3 +1,6 @@
+"""
+source: https://github.com/AliceDudu/Learning-Notes/blob/master/Machine-Learning-Algorithms/DecisionTrees/treePlotter.py
+"""
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['SimHei']
 

@@ -58,13 +58,13 @@ def create_data_set():
                 [0, 0, 1, 1, 1, 0, 0.719, 0.103, '坏瓜']]
     labels_list = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感', '密度', '含糖量']
     labels_dict = {'色泽': {0: '青绿', 1: '乌黑', 2: '浅白'},
-              '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
-              '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
-              '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
-              '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
-              '触感': {0: '硬滑', 1: '软粘'},
-              '密度': {},
-              '含糖量': {}}
+                   '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
+                   '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
+                   '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
+                   '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
+                   '触感': {0: '硬滑', 1: '软粘'},
+                   '密度': {},
+                   '含糖量': {}}
     is_features_discrete = [1, 1, 1, 1, 1, 1, 0, 0]
     return data_set, labels_list, labels_dict, is_features_discrete
 
@@ -267,7 +267,7 @@ def get_best_feature(data_set, labels, is_features_discrete, ID3_or_C45):
                 max_gain_ratio_index = i
         return max_gain_ratio_index, continuous_feature_value_list[max_gain_ratio_index]
     else:
-        return None
+        raise NameError('ID3_or_C45 should be 0 or 1')
 
 
 if __name__ == '__main__':
