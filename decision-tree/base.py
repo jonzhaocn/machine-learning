@@ -69,7 +69,8 @@ def calculate_gini(data_set):
         class_count[current_class] += 1
     gini = 1.0
     for key in class_count:
-        gini -= (class_count[key]/num_entries)*(class_count[key]/num_entries)
+        prob = float(class_count[key]/num_entries)
+        gini -= prob*prob
     return gini
 
 

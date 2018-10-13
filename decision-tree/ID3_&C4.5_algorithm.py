@@ -91,18 +91,23 @@ def tree_generate(data_set, labels_list, labels_dict, is_features_discrete, ID3_
         del(is_features_discrete[best_feature_index])
         del (labels_list[best_feature_index])
 
-        sub_features_list = [sample[best_feature_index] for sample in data_set]
-        unique_sub_features = set(sub_features_list)
+        unique_sub_features = labels_dict[best_feature_label].keys()
         for value in unique_sub_features:
             # 往下继续生成树
             # 使用sub_labels来替代labels，传递到tree_generate函数，tree_generate会删除labels中的内容，
             # 如果一直传递同一个labels，会出现问题，sub_labels = labels[:]，相当于拷贝一个新的labels list
             sub_labels_list = labels_list[:]
             sub_is_feature_discrete = is_features_discrete[:]
-
-            tree[best_feature_label][labels_dict[best_feature_label][value]] = tree_generate(split_data_set_by_operate(
-                data_set, best_feature_index, value, operator.eq, delete_col=True),
-                sub_labels_list, labels_dict, sub_is_feature_discrete, ID3_or_C45)
+            sub_data_set = split_data_set_by_operate(
+                data_set, best_feature_index, value, operator.eq, delete_col=True)
+            sub_feature_name = labels_dict[best_feature_label][value]
+            # 如果划分出来的子属性集合为空，则将分支结点标记为叶节点，其分类标记为data_set中样本最多的类
+            if len(sub_data_set) == 0:
+                tree[best_feature_label][sub_feature_name] = get_most_common_class(data_set)
+            # 如果划分出来的子属性集合不为空，则继续递归
+            else:
+                tree[best_feature_label][sub_feature_name] = tree_generate(sub_data_set,
+                    sub_labels_list, labels_dict, sub_is_feature_discrete, ID3_or_C45)
     # 如果该特征是连续的，不需要从数据中删除该特征
     # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
     else:

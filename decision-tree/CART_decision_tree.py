@@ -25,6 +25,7 @@ def create_data_set():
     data_set_train = [[0, 0, 0, 0, 0, 0, '好瓜'],
                       [1, 0, 1, 0, 0, 0, '好瓜'],
                       [1, 0, 0, 0, 0, 0, '好瓜'],
+                      [0, 0, 1, 0, 0, 0, '好瓜'],
                       [0, 1, 0, 0, 1, 1, '好瓜'],
                       [1, 1, 0, 1, 1, 1, '好瓜'],
                       [0, 2, 2, 0, 2, 1, '坏瓜'],
@@ -32,8 +33,7 @@ def create_data_set():
                       [1, 1, 0, 0, 1, 1, '坏瓜'],
                       [2, 0, 0, 2, 2, 0, '坏瓜'],
                       [0, 0, 1, 1, 1, 0, '坏瓜']]
-    data_set_validate = [[0, 0, 1, 0, 0, 0, '好瓜'],
-                         [2, 0, 0, 0, 0, 0, '好瓜'],
+    data_set_validate = [[2, 0, 0, 0, 0, 0, '好瓜'],
                          [1, 1, 0, 0, 1, 0, '好瓜'],
                          [1, 1, 1, 1, 1, 0, '坏瓜'],
                          [2, 2, 2, 2, 2, 0, '坏瓜'],
@@ -84,16 +84,20 @@ def tree_generate_without_pruning(data_set_train, labels_list, labels_dict):
     del(labels_list[best_feature_index])
 
     tree = {best_feature_label: {}}
-    sub_features_value_set = [sample[best_feature_index] for sample in data_set_train]
-    sub_features_value_set = set(sub_features_value_set)
+    sub_features_value_set = labels_dict[best_feature_label].keys()
 
     for sub_feature_value in sub_features_value_set:
         sub_labels_list = labels_list[:]
         sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, sub_feature_value,
                                                        operator.eq, delete_col=True)
         sub_feature_name = labels_dict[best_feature_label][sub_feature_value]
-        tree[best_feature_label][sub_feature_name] = tree_generate_without_pruning(sub_data_set_train,
-                                                                                   sub_labels_list, labels_dict)
+        # 如果划分出来的子属性集合为空，则将分支结点标记为叶节点，其分类标记为data_set中样本最多的类
+        if len(sub_data_set_train) == 0:
+            tree[best_feature_label][sub_feature_name] = get_most_common_class(data_set_train)
+        # 如果划分出来的子属性集合不为空，则继续递归
+        else:
+            tree[best_feature_label][sub_feature_name] = tree_generate_without_pruning(sub_data_set_train,
+                                                                                       sub_labels_list, labels_dict)
     return tree
 
 
