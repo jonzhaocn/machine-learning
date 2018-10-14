@@ -60,6 +60,11 @@ def split_data_set_by_operate(data_set, col, value, operate, delete_col):
 
 
 def calculate_gini(data_set):
+    """
+    计算gini
+    :param data_set:
+    :return:
+    """
     num_entries = len(data_set)
     class_count = {}
     for sample in data_set:
@@ -94,3 +99,59 @@ def calculate_information_entropy(data_set):
         prob = float(class_counts[key]) / num_entries
         entropy -= prob * log(prob, 2)
     return entropy
+
+
+def classify_by_tree(input_tree, test_sample, lables_list, labels_dict):
+    """
+    按照树的结构对测试sample进行分类
+    :param input_tree:
+    :param test_sample:
+    :param lables_list:
+    :return:
+    """
+    feature_name = list(input_tree.keys())[0]
+    inferior_tree = input_tree[feature_name]
+    feature_index = lables_list.index(feature_name)
+    for value in inferior_tree:
+        current_sample_feature_key = test_sample[feature_index]
+        if labels_dict[feature_name][current_sample_feature_key] == value:
+            if type(inferior_tree[value]).__name__ == 'dict':
+                return classify_by_tree(inferior_tree[value], test_sample, lables_list, labels_dict)
+            else:
+                return inferior_tree[value]
+
+
+def get_validation_error_count_by_tree(input_tree, data_set_validate, labels_list, labels_dict):
+    """
+    根据决策树，获取验证集中分类错误的个数
+    :param input_tree:
+    :param data_set_validate:
+    :param labels_list:
+    :return:
+    """
+    num_sample = len(data_set_validate)
+    error_count = 0
+    for i in range(num_sample):
+        classify_result = classify_by_tree(input_tree, data_set_validate[i], labels_list, labels_dict)
+        if classify_result != data_set_validate[i][-1]:
+            error_count += 1
+    return error_count
+
+
+def get_validation_error_count_by_major_class(major_class, data_set_validate):
+    """
+    根据major_class，获取验证集中分类错误的个数
+    :param major_class:
+    :param data_set_validate:
+    :return:
+    """
+    num_sample = len(data_set_validate)
+    error_count = 0
+    for i in range(num_sample):
+        if data_set_validate[i][-1] != major_class:
+            error_count += 1
+    return error_count
+
+
+def get_keys_for_dict(dict, value):
+    return [k for k, v in dict.items() if v == value]

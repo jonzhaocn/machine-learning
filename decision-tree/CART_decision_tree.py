@@ -1,7 +1,7 @@
 import operator
 import treePlotter
 from base import is_all_sample_same, get_most_common_class, split_data_set_by_operate, \
-    calculate_gini
+    calculate_gini, get_validation_error_count_by_major_class, get_validation_error_count_by_tree, get_keys_for_dict
 
 """
 周志华《机器学习》第四章中的习题4.4 code
@@ -159,8 +159,38 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, labels_lis
         return tree
 
 
+def tree_generator_with_post_pruning(input_tree, data_set_train, data_set_validate, labels_list, labels_dict):
+    if type(input_tree).__name__ == 'str':
+        return input_tree
+    feature_name = list(input_tree.keys())[0]
+    inferior_tree = input_tree[feature_name]
+    feature_index = labels_list.index(feature_name)
+
+    for value in inferior_tree:
+        value_key = get_keys_for_dict(labels_dict[feature_name], value)[0]
+
+        sub_labels_list = labels_list[:]
+        del(sub_labels_list[feature_index])
+
+        sub_data_set_train = split_data_set_by_operate(data_set_train, feature_index, value_key,
+                                                       operator.eq, delete_col=True)
+        sub_data_set_validate = split_data_set_by_operate(data_set_validate, feature_index, value_key,
+                                                          operator.eq, delete_col=True)
+        input_tree[feature_name][value] = tree_generator_with_post_pruning(
+            inferior_tree[value], sub_data_set_train, sub_data_set_validate, sub_labels_list, labels_dict)
+    # 到达某个结点之后，测试一下准确率，看看是否要剪枝
+    # get_validation_error_count_by_major_class(major_class, data_set_validate)
+    # get_validation_error_count_by_tree(input_tree, data_set_validate, labels_list)
+    error_count_by_tree = get_validation_error_count_by_tree(input_tree, data_set_validate, labels_list, labels_dict)
+    error_count_by_major_class = get_validation_error_count_by_major_class(get_most_common_class(data_set_train), data_set_validate)
+    if error_count_by_tree <= error_count_by_major_class:
+        return input_tree
+    return get_most_common_class(data_set_train)
+
+
 if __name__ == '__main__':
     data_set_train, data_set_validate, labels_list, labels_dict = create_data_set()
-    # decision_tree = tree_generate_without_pruning(data_set_train, labels_list, labels_dict)
-    decision_tree = tree_generate_with_pre_pruning(data_set_train, data_set_validate, labels_list, labels_dict)
-    treePlotter.createPlot(decision_tree)
+    tree_without_pruning = tree_generate_without_pruning(data_set_train, labels_list[:], labels_dict)
+    tree_with_pre_pruning = tree_generate_with_pre_pruning(data_set_train, data_set_validate, labels_list[:], labels_dict)
+    tree_with_post_pruning = tree_generator_with_post_pruning(tree_without_pruning, data_set_train, data_set_validate, labels_list[:], labels_dict)
+    treePlotter.createPlot(tree_with_post_pruning)
