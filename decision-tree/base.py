@@ -153,5 +153,52 @@ def get_validation_error_count_by_major_class(major_class, data_set_validate):
     return error_count
 
 
+def get_validation_error_before_pruning(data_set_train, data_set_validate):
+    # 计算划分之前的准确率
+    most_common_class = get_most_common_class(data_set_train)
+    # 没有划分就相当于将验证集中的所有数据分到 most_common_class 中
+    class_list = [sample[-1] for sample in data_set_validate]
+    accuracy_rate_before_pruning = class_list.count(most_common_class) / float(len(class_list))
+    return accuracy_rate_before_pruning
+
+
+def get_validation_error_after_pruning(data_set_train, data_set_validate, best_feature_index,
+                                       is_feature_discrete, best_continuous_feature_value):
+    # 计算划分之后的准确率
+    accuracy_rate_after_pruning = 0.0
+    if is_feature_discrete:
+        sub_features_value_set = [sample[best_feature_index] for sample in data_set_train]
+        sub_features_value_set = set(sub_features_value_set)
+    else:
+        sub_features_value_set = ['是', '否']
+
+    for sub_feature_value in sub_features_value_set:
+        # 离散特征值
+        if is_feature_discrete:
+            split_operate = operator.eq
+            delete_col = True
+        # 连续特征值
+        else:
+            sub_feature_value = best_continuous_feature_value
+            delete_col = False
+            if sub_feature_value == '是':
+                split_operate = operator.le
+            else:
+                split_operate = operator.gt
+
+        sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, sub_feature_value,
+                                                       split_operate, delete_col=delete_col)
+        sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, sub_feature_value,
+                                                          split_operate, delete_col=delete_col)
+        if len(sub_data_set_validate) == 0:
+            continue
+        sub_most_common_class = get_most_common_class(sub_data_set_train)
+        # 按照feature的某个取值划分之后，该划分上的分类结果看成是 sub_most_common_class
+        sub_class_list = [sample[-1] for sample in sub_data_set_validate]
+        accuracy_rate_after_pruning += sub_class_list.count(sub_most_common_class) / float(len(sub_class_list)) \
+                                       * (len(sub_class_list) / len(data_set_validate))
+    return accuracy_rate_after_pruning
+
+
 def get_keys_for_dict(dict, value):
     return [k for k, v in dict.items() if v == value]
