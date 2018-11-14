@@ -12,6 +12,12 @@ ID3基于信息增益，C4.5基于增益率
 
 
 def tree_generate(data_set, features_list, features_dict, is_features_discrete, ID3_or_C45):
+    # deep copy
+    # 使用new features_list来替代features_list，传递到tree_generate函数，tree_generate会删除features_list中的内容，
+    # 如果一直传递同一个features_list，会出现问题，new features_list = features_list[:]，相当于拷贝一个新的features list
+    features_list = features_list[:]
+    is_features_discrete = is_features_discrete[:]
+
     # 检查样本是否已经同属于一类了
     class_list = [sample[-1] for sample in data_set]
     if class_list.count(class_list[0]) == len(class_list):
@@ -29,15 +35,11 @@ def tree_generate(data_set, features_list, features_dict, is_features_discrete, 
         tree = {best_feature_name: {}}
 
         del(is_features_discrete[best_feature_index])
-        del (features_list[best_feature_index])
+        del(features_list[best_feature_index])
 
         feature_values_list = features_dict[best_feature_name].keys()
         for feature_value in feature_values_list:
             # 往下继续生成树
-            # 使用new_features_list来替代features_list，传递到tree_generate函数，tree_generate会删除features_list中的内容，
-            # 如果一直传递同一个features_list，会出现问题，new_features_list = features_list[:]，相当于拷贝一个新的features list
-            new_features_list = features_list[:]
-            new_is_features_discrete = is_features_discrete[:]
             sub_data_set = split_data_set_by_operate(
                 data_set, best_feature_index, feature_value, operator.eq, delete_col=True)
             feature_value_name = features_dict[best_feature_name][feature_value]
@@ -47,7 +49,7 @@ def tree_generate(data_set, features_list, features_dict, is_features_discrete, 
             # 如果划分出来的子属性集合不为空，则继续递归
             else:
                 tree[best_feature_name][feature_value_name] = \
-                    tree_generate(sub_data_set, new_features_list, features_dict, new_is_features_discrete, ID3_or_C45)
+                    tree_generate(sub_data_set, features_list, features_dict, is_features_discrete, ID3_or_C45)
     # 如果该特征是连续的，不需要从数据中删除该特征
     # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
     else:
@@ -64,7 +66,7 @@ def tree_generate(data_set, features_list, features_dict, is_features_discrete, 
 
 def get_best_feature(data_set, features, is_features_discrete, ID3_or_C45):
     """
-    从lables中找出最优划分属性
+    从features中找出最优划分属性
     :param data_set:
     :param features:
     :return:
@@ -109,7 +111,8 @@ def get_best_feature(data_set, features, is_features_discrete, ID3_or_C45):
                 sub_data_set_le = split_data_set_by_operate(data_set, i, feature_value, operator.le, delete_col=True)
                 sub_data_set_gt = split_data_set_by_operate(data_set, i, feature_value, operator.gt, delete_col=True)
                 prob = float(len(sub_data_set_le)) / len(data_set)
-                entropy = prob * calculate_information_entropy(sub_data_set_le) + (1-prob) * calculate_information_entropy(sub_data_set_gt)
+                entropy = prob * calculate_information_entropy(sub_data_set_le) + \
+                          (1-prob) * calculate_information_entropy(sub_data_set_gt)
                 gain = base_entropy - entropy
                 iv = prob * log(prob, 2) + (1-prob) * log(1-prob, 2)
                 gain_ratio = gain / (-iv)

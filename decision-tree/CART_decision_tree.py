@@ -63,6 +63,10 @@ def tree_generate_without_pruning(data_set_train, features_list, features_dict, 
     :param is_features_discrete:
     :return:
     """
+    # deep copy
+    features_list = features_list[:]
+    is_features_discrete = is_features_discrete[:]
+
     # 检查样本是否已经同属于一类了
     class_list = [sample[-1] for sample in data_set_train]
     if class_list.count(class_list[0]) == len(class_list):
@@ -78,12 +82,12 @@ def tree_generate_without_pruning(data_set_train, features_list, features_dict, 
 
     if is_features_discrete[best_feature_index] == 1:
         # 如果该特征是离散型的，从数据中删除该特征
-        del (features_list[best_feature_index])
+        del(features_list[best_feature_index])
+        del(is_features_discrete[best_feature_index])
         tree = {best_feature_name: {}}
         feature_values_list = features_dict[best_feature_name].keys()
 
         for feature_value in feature_values_list:
-            new_features_list = features_list[:]
             sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, feature_value,
                                                            operator.eq, delete_col=True)
             feature_value_name = features_dict[best_feature_name][feature_value]
@@ -92,9 +96,8 @@ def tree_generate_without_pruning(data_set_train, features_list, features_dict, 
                 tree[best_feature_name][feature_value_name] = get_most_common_class(data_set_train)
             # 如果划分出来的子属性集合不为空，则继续递归
             else:
-                tree[best_feature_name][feature_value_name] = tree_generate_without_pruning(sub_data_set_train,
-                                                                                          new_features_list, features_dict,
-                                                                                           is_features_discrete)
+                tree[best_feature_name][feature_value_name] = \
+                    tree_generate_without_pruning(sub_data_set_train, features_list, features_dict, is_features_discrete)
     else:
         # 如果该特征是连续的，不需要从数据中删除该特征
         # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
@@ -119,6 +122,10 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_l
     :param is_features_discrete:
     :return:
     """
+    # deep copy
+    features_list = features_list[:]
+    is_features_discrete = is_features_discrete[:]
+
     # 检查样本是否已经同属于一类了
     class_list = [sample[-1] for sample in data_set_train]
     if class_list.count(class_list[0]) == len(class_list):
@@ -132,9 +139,6 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_l
     best_feature_index, best_continuous_feature_value = get_best_feature_gini(data_set_train, features_list, is_features_discrete)
     best_feature_name = features_list[best_feature_index]
 
-    # 特征值为离散值
-    if is_features_discrete[best_feature_index] == 1:
-        del (features_list[best_feature_index])
     accuracy_rate_before_pruning = get_validation_error_before_pruning(data_set_train, data_set_validate)
     accuracy_rate_after_pruning = get_validation_error_after_pruning(data_set_train, data_set_validate, best_feature_index,
                                                                      is_features_discrete[best_feature_index], best_continuous_feature_value)
@@ -145,19 +149,21 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_l
     # 划分之后的准确率超过了划分之前的准确率，继续进行划分
     else:
         if is_features_discrete[best_feature_index] == 1:
+            del (features_list[best_feature_index])
+            del (is_features_discrete[best_feature_index])
             tree = {best_feature_name: {}}
             feature_values_list = [sample[best_feature_index] for sample in data_set_train]
             feature_values_list = set(feature_values_list)
 
             for feature_value in feature_values_list:
-                new_features_list = features_list[:]
                 sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, feature_value,
                                                                operator.eq, delete_col=True)
                 sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, feature_value,
                                                                   operator.eq, delete_col=True)
                 feature_value_name = features_dict[best_feature_name][feature_value]
                 tree[best_feature_name][feature_value_name] = \
-                    tree_generate_with_pre_pruning(sub_data_set_train, sub_data_set_validate, new_features_list, features_dict, is_features_discrete)
+                    tree_generate_with_pre_pruning(sub_data_set_train, sub_data_set_validate,
+                                                   features_list, features_dict, is_features_discrete)
         else:
             key = best_feature_name + '<=' + str.format("%0.3f" % best_continuous_feature_value)
             tree = {key: {}}
@@ -176,7 +182,8 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_l
         return tree
 
 
-def tree_generator_with_post_pruning(input_tree, data_set_train, data_set_validate, features_list, features_dict):
+def tree_generator_with_post_pruning(input_tree, data_set_train, data_set_validate, features_list, features_dict,
+                                     is_features_discrete):
     """
     后剪枝 树生成
     :param input_tree:
@@ -184,31 +191,37 @@ def tree_generator_with_post_pruning(input_tree, data_set_train, data_set_valida
     :param data_set_validate:
     :param features_list:
     :param features_dict:
+    :param is_features_discrete:
     :return:
     """
     if type(input_tree).__name__ == 'str':
         return input_tree
     feature_name = list(input_tree.keys())[0]
-    inferior_tree = input_tree[feature_name]
+    sub_tree = input_tree[feature_name]
     feature_index = features_list.index(feature_name)
 
-    for value in inferior_tree:
+    for value in sub_tree:
         value_key = get_keys_for_dict(features_dict[feature_name], value)[0]
 
         new_features_list = features_list[:]
+        new_is_features_discrete = is_features_discrete[:]
         del(new_features_list[feature_index])
+        del(new_is_features_discrete[feature_index])
 
         sub_data_set_train = split_data_set_by_operate(data_set_train, feature_index, value_key,
                                                        operator.eq, delete_col=True)
         sub_data_set_validate = split_data_set_by_operate(data_set_validate, feature_index, value_key,
                                                           operator.eq, delete_col=True)
         input_tree[feature_name][value] = tree_generator_with_post_pruning(
-            inferior_tree[value], sub_data_set_train, sub_data_set_validate, new_features_list, features_dict)
+            sub_tree[value], sub_data_set_train, sub_data_set_validate, new_features_list, features_dict,
+            new_is_features_discrete)
     # 到达某个结点之后，测试一下准确率，看看是否要剪枝
     # get_validation_error_count_by_major_class(major_class, data_set_validate)
     # get_validation_error_count_by_tree(input_tree, data_set_validate, features_list)
-    error_count_by_tree = get_validation_error_count_by_tree(input_tree, data_set_validate, features_list, features_dict)
-    error_count_by_major_class = get_validation_error_count_by_major_class(get_most_common_class(data_set_train), data_set_validate)
+    error_count_by_tree = get_validation_error_count_by_tree(input_tree, data_set_validate,
+                                                             features_list, features_dict, is_features_discrete)
+    error_count_by_major_class = get_validation_error_count_by_major_class(get_most_common_class(data_set_train),
+                                                                           data_set_validate)
     if error_count_by_tree <= error_count_by_major_class:
         return input_tree
     return get_most_common_class(data_set_train)
@@ -216,7 +229,9 @@ def tree_generator_with_post_pruning(input_tree, data_set_train, data_set_valida
 
 if __name__ == '__main__':
     data_set_train, data_set_validate, features_list, features_dict, is_features_discrete = create_data_set_two()
-    tree_without_pruning = tree_generate_without_pruning(data_set_train, features_list[:], features_dict, is_features_discrete)
-    tree_with_pre_pruning = tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_list[:], features_dict, is_features_discrete)
-    tree_with_post_pruning = tree_generator_with_post_pruning(tree_without_pruning, data_set_train, data_set_validate, features_list[:], features_dict)
+    tree_without_pruning = tree_generate_without_pruning(data_set_train, features_list, features_dict, is_features_discrete)
+    tree_with_pre_pruning = tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_list,
+                                                           features_dict, is_features_discrete)
+    tree_with_post_pruning = tree_generator_with_post_pruning(tree_without_pruning, data_set_train, data_set_validate,
+                                                              features_list, features_dict, is_features_discrete)
     treePlotter.createPlot(tree_with_post_pruning)

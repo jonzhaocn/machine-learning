@@ -100,7 +100,7 @@ def create_data_set_two():
                      '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
                      '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
                      '触感': {0: '硬滑', 1: '软粘'}}
-    is_features_discrete = [1, 1, 1, 1, 1, 1, 0, 0]
+    is_features_discrete = [1, 1, 1, 1, 1, 1]
     return data_set_train, data_set_validate, features_list, features_dict, is_features_discrete
 
 
@@ -203,40 +203,61 @@ def calculate_information_entropy(data_set):
     return entropy
 
 
-def classify_by_tree(input_tree, test_sample, features_list, features_dict):
+def classify_by_tree(input_tree, test_sample, features_list, features_dict, is_features_discrete):
     """
     按照树的结构对测试sample进行分类
     :param input_tree:
     :param test_sample:
     :param features_list:
     :param features_dict:
+    :param is_features_discrete:
     :return:
     """
-    feature_name = list(input_tree.keys())[0]
-    inferior_tree = input_tree[feature_name]
-    feature_index = features_list.index(feature_name)
-    for value in inferior_tree:
-        current_sample_feature_key = test_sample[feature_index]
-        if features_dict[feature_name][current_sample_feature_key] == value:
-            if type(inferior_tree[value]).__name__ == 'dict':
-                return classify_by_tree(inferior_tree[value], test_sample, features_list, features_dict)
-            else:
-                return inferior_tree[value]
+    root_node_name = list(input_tree.keys())[0]
+    sub_tree = input_tree[root_node_name]
+    # split for the case that the feature is continual and it's node name contain "<="
+    root_node_name_list = root_node_name.split("<=")
+    root_node_name = root_node_name_list[0]
+    feature_index = features_list.index(root_node_name)
+    continual_feature_value = None
+    if is_features_discrete[feature_index] == 0:
+        continual_feature_value = float(root_node_name_list[1])
+
+    for feature_value_name in sub_tree:
+        sample_feature_value = test_sample[feature_index]
+        if is_features_discrete[feature_index] == 1:
+            if features_dict[root_node_name][sample_feature_value] == feature_value_name:
+                if type(sub_tree[feature_value_name]).__name__ == 'dict':
+                    return classify_by_tree(sub_tree[feature_value_name], test_sample, features_list,
+                                            features_dict, is_features_discrete)
+                else:
+                    return sub_tree[feature_value_name]
+        else:
+            if (feature_value_name == '是' and sample_feature_value <= continual_feature_value) or \
+                    (feature_value_name == '否' and sample_feature_value > continual_feature_value):
+                if type(sub_tree[feature_value_name]).__name__ == 'dict':
+                    return classify_by_tree(sub_tree[feature_value_name], test_sample, features_list,
+                                            features_dict, is_features_discrete)
+                else:
+                    return sub_tree[feature_value_name]
 
 
-def get_validation_error_count_by_tree(input_tree, data_set_validate, features_list, features_dict):
+def get_validation_error_count_by_tree(input_tree, data_set_validate, features_list, features_dict,
+                                       is_features_discrete):
     """
     根据决策树，获取验证集中分类错误的个数
     :param input_tree:
     :param data_set_validate:
     :param features_list:
     :param features_dict:
+    :param is_features_discrete:
     :return:
     """
     num_sample = len(data_set_validate)
     error_count = 0
     for i in range(num_sample):
-        classify_result = classify_by_tree(input_tree, data_set_validate[i], features_list, features_dict)
+        classify_result = classify_by_tree(input_tree, data_set_validate[i], features_list, features_dict,
+                                           is_features_discrete)
         if classify_result != data_set_validate[i][-1]:
             error_count += 1
     return error_count

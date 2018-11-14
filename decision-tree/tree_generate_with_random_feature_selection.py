@@ -13,6 +13,10 @@ def tree_generate_with_random_feature_selection(data_set, features_list, feature
     :param is_features_discrete:
     :return:
     """
+    # deep copy
+    features_list = features_list[:]
+    is_features_discrete = is_features_discrete[:]
+    #
     samples_class = [sample[-1] for sample in data_set]
     if samples_class.count(samples_class[0]) == len(samples_class):
         return samples_class[0]
@@ -31,8 +35,7 @@ def tree_generate_with_random_feature_selection(data_set, features_list, feature
         for feature_value in feature_value_set:
             # 如果没有重新拷贝一份，只要每往下一层，就会删除features_list中的一个数据，
             # 但是递归返回时的往另外一个分支走的时候就会出问题
-            new_features_list = features_list[:]
-            new_is_features_discrete = is_features_discrete[:]
+
             sub_data_set_train = split_data_set_by_operate(data_set, best_feature_index, feature_value,
                                                            operator.eq, delete_col=True)
             feature_value_name = features_dict[best_feature_name][feature_value]
@@ -42,8 +45,8 @@ def tree_generate_with_random_feature_selection(data_set, features_list, feature
             # 如果划分出来的子属性集合不为空，则继续递归
             else:
                 tree[best_feature_name][feature_value_name] = \
-                    tree_generate_with_random_feature_selection(sub_data_set_train, new_features_list,
-                                                           features_dict, new_is_features_discrete)
+                    tree_generate_with_random_feature_selection(sub_data_set_train, features_list, features_dict,
+                                                                is_features_discrete)
     else:
         # 如果该特征是连续的
         feature_values_mid_value_list = []
@@ -69,5 +72,6 @@ def tree_generate_with_random_feature_selection(data_set, features_list, feature
 
 if __name__ == '__main__':
     data_set, features_list, features_dict, is_features_discrete = create_data_set_one()
-    decision_tree = tree_generate_with_random_feature_selection(data_set, features_list, features_dict, is_features_discrete)
+    decision_tree = tree_generate_with_random_feature_selection(data_set, features_list, features_dict,
+                                                                is_features_discrete)
     treePlotter.createPlot(decision_tree)
