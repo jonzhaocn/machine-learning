@@ -52,13 +52,13 @@ def create_data_set_one():
                 [0, 0, 1, 1, 1, 0, 0.719, 0.103, '坏瓜']]
     features_list = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感', '密度', '含糖量']
     features_dict = {'色泽': {0: '青绿', 1: '乌黑', 2: '浅白'},
-                   '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
-                   '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
-                   '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
-                   '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
-                   '触感': {0: '硬滑', 1: '软粘'},
-                   '密度': {},
-                   '含糖量': {}}
+                     '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
+                     '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
+                     '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
+                     '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
+                     '触感': {0: '硬滑', 1: '软粘'},
+                     '密度': {},
+                     '含糖量': {}}
     is_features_discrete = [1, 1, 1, 1, 1, 1, 0, 0]
     return data_set, features_list, features_dict, is_features_discrete
 
@@ -93,26 +93,26 @@ def create_data_set_two():
                          [2, 2, 2, 2, 2, 0, '坏瓜'],
                          [2, 0, 0, 2, 2, 1, '坏瓜'],
                          [0, 1, 0, 1, 0, 0, '坏瓜']]
-    labels_list = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感']
-    labels_dict = {'色泽': {0: '青绿', 1: '乌黑', 2: '浅白'},
-                   '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
-                   '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
-                   '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
-                   '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
-                   '触感': {0: '硬滑', 1: '软粘'}}
+    features_list = ['色泽', '根蒂', '敲声', '纹理', '脐部', '触感']
+    features_dict = {'色泽': {0: '青绿', 1: '乌黑', 2: '浅白'},
+                     '根蒂': {0: '蜷缩', 1: '稍缩', 2: '硬挺'},
+                     '敲声': {0: '浊响', 1: '沉闷', 2: '清脆'},
+                     '纹理': {0: '清晰', 1: '稍糊', 2: '模糊'},
+                     '脐部': {0: '凹陷', 1: '稍凹', 2: '平坦'},
+                     '触感': {0: '硬滑', 1: '软粘'}}
     is_features_discrete = [1, 1, 1, 1, 1, 1, 0, 0]
-    return data_set_train, data_set_validate, labels_list, labels_dict, is_features_discrete
+    return data_set_train, data_set_validate, features_list, features_dict, is_features_discrete
 
 
 def is_all_sample_same(data_set):
     """
-    检查data_set中的样本在lables上的取值都相同
+    检查data_set中的样本在features上的取值都相同
     那如何比较连续特征的值呢
     :param data_set:
     :return:
     """
     for i in range(len(data_set) - 1):
-        # 将sample中最后的分类结果去掉，只比较labels上的值是否完全一致
+        # 将sample中最后的分类结果去掉，只比较features上的值是否完全一致
         sample1 = data_set[i][:-1]
         sample2 = data_set[i + 1][:-1]
         result = operator.eq(sample1, sample2)
@@ -203,38 +203,40 @@ def calculate_information_entropy(data_set):
     return entropy
 
 
-def classify_by_tree(input_tree, test_sample, lables_list, labels_dict):
+def classify_by_tree(input_tree, test_sample, features_list, features_dict):
     """
     按照树的结构对测试sample进行分类
     :param input_tree:
     :param test_sample:
-    :param lables_list:
+    :param features_list:
+    :param features_dict:
     :return:
     """
     feature_name = list(input_tree.keys())[0]
     inferior_tree = input_tree[feature_name]
-    feature_index = lables_list.index(feature_name)
+    feature_index = features_list.index(feature_name)
     for value in inferior_tree:
         current_sample_feature_key = test_sample[feature_index]
-        if labels_dict[feature_name][current_sample_feature_key] == value:
+        if features_dict[feature_name][current_sample_feature_key] == value:
             if type(inferior_tree[value]).__name__ == 'dict':
-                return classify_by_tree(inferior_tree[value], test_sample, lables_list, labels_dict)
+                return classify_by_tree(inferior_tree[value], test_sample, features_list, features_dict)
             else:
                 return inferior_tree[value]
 
 
-def get_validation_error_count_by_tree(input_tree, data_set_validate, labels_list, labels_dict):
+def get_validation_error_count_by_tree(input_tree, data_set_validate, features_list, features_dict):
     """
     根据决策树，获取验证集中分类错误的个数
     :param input_tree:
     :param data_set_validate:
-    :param labels_list:
+    :param features_list:
+    :param features_dict:
     :return:
     """
     num_sample = len(data_set_validate)
     error_count = 0
     for i in range(num_sample):
-        classify_result = classify_by_tree(input_tree, data_set_validate[i], labels_list, labels_dict)
+        classify_result = classify_by_tree(input_tree, data_set_validate[i], features_list, features_dict)
         if classify_result != data_set_validate[i][-1]:
             error_count += 1
     return error_count
@@ -269,28 +271,28 @@ def get_validation_error_after_pruning(data_set_train, data_set_validate, best_f
     # 计算划分之后的准确率
     accuracy_rate_after_pruning = 0.0
     if is_feature_discrete:
-        sub_features_value_set = [sample[best_feature_index] for sample in data_set_train]
-        sub_features_value_set = set(sub_features_value_set)
+        feature_values_list = [sample[best_feature_index] for sample in data_set_train]
+        feature_values_list = set(feature_values_list)
     else:
-        sub_features_value_set = ['是', '否']
+        feature_values_list = ['是', '否']
 
-    for sub_feature_value in sub_features_value_set:
+    for feature_value in feature_values_list:
         # 离散特征值
         if is_feature_discrete:
             split_operate = operator.eq
             delete_col = True
         # 连续特征值
         else:
-            sub_feature_value = best_continuous_feature_value
+            feature_value = best_continuous_feature_value
             delete_col = False
-            if sub_feature_value == '是':
+            if feature_value == '是':
                 split_operate = operator.le
             else:
                 split_operate = operator.gt
 
-        sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, sub_feature_value,
+        sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, feature_value,
                                                        split_operate, delete_col=delete_col)
-        sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, sub_feature_value,
+        sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, feature_value,
                                                           split_operate, delete_col=delete_col)
         if len(sub_data_set_validate) == 0:
             continue
@@ -302,5 +304,5 @@ def get_validation_error_after_pruning(data_set_train, data_set_validate, best_f
     return accuracy_rate_after_pruning
 
 
-def get_keys_for_dict(dict, value):
-    return [k for k, v in dict.items() if v == value]
+def get_keys_for_dict(my_dict, value):
+    return [k for k, v in my_dict.items() if v == value]

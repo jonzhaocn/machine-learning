@@ -23,35 +23,35 @@ def tree_generate(data_set, features_list, features_dict, is_features_discrete, 
 
     # 从A中找出最优的属性值，进行划分
     best_feature_index, best_continuous_feature_value = get_best_feature(data_set, features_list, is_features_discrete, ID3_or_C45)
-    best_feature_label = features_list[best_feature_index]
+    best_feature_name = features_list[best_feature_index]
     # 如果该特征是离散型的，从数据中删除该特征
     if is_features_discrete[best_feature_index] == 1:
-        tree = {best_feature_label: {}}
+        tree = {best_feature_name: {}}
 
         del(is_features_discrete[best_feature_index])
         del (features_list[best_feature_index])
 
-        unique_sub_features = features_dict[best_feature_label].keys()
-        for value in unique_sub_features:
+        feature_values_list = features_dict[best_feature_name].keys()
+        for feature_value in feature_values_list:
             # 往下继续生成树
             # 使用new_features_list来替代features_list，传递到tree_generate函数，tree_generate会删除features_list中的内容，
             # 如果一直传递同一个features_list，会出现问题，new_features_list = features_list[:]，相当于拷贝一个新的features list
             new_features_list = features_list[:]
-            sub_is_feature_discrete = is_features_discrete[:]
+            new_is_features_discrete = is_features_discrete[:]
             sub_data_set = split_data_set_by_operate(
-                data_set, best_feature_index, value, operator.eq, delete_col=True)
-            sub_feature_name = features_dict[best_feature_label][value]
+                data_set, best_feature_index, feature_value, operator.eq, delete_col=True)
+            feature_value_name = features_dict[best_feature_name][feature_value]
             # 如果划分出来的子属性集合为空，则将分支结点标记为叶节点，其分类标记为data_set中样本最多的类
             if len(sub_data_set) == 0:
-                tree[best_feature_label][sub_feature_name] = get_most_common_class(data_set)
+                tree[best_feature_name][feature_value_name] = get_most_common_class(data_set)
             # 如果划分出来的子属性集合不为空，则继续递归
             else:
-                tree[best_feature_label][sub_feature_name] = \
-                    tree_generate(sub_data_set, new_features_list, features_dict, sub_is_feature_discrete, ID3_or_C45)
+                tree[best_feature_name][feature_value_name] = \
+                    tree_generate(sub_data_set, new_features_list, features_dict, new_is_features_discrete, ID3_or_C45)
     # 如果该特征是连续的，不需要从数据中删除该特征
     # 与离散属性不同，若当前结点划分属性为连续属性，该属性还可作为其后代结点的划分属性
     else:
-        key = best_feature_label+'<='+str.format("%0.3f" % best_continuous_feature_value)
+        key = best_feature_name+'<='+str.format("%0.3f" % best_continuous_feature_value)
         tree = {key: {}}
         tree[key]['是'] = tree_generate(split_data_set_by_operate(
             data_set, best_feature_index, best_continuous_feature_value, operator.le, delete_col=False),
@@ -78,12 +78,12 @@ def get_best_feature(data_set, features, is_features_discrete, ID3_or_C45):
     for i in range(feature_num):
         # 处理离散型的特征，各个特征已经划分成特定的子集了，不需要再次进行划分
         if is_features_discrete[i] == 1:
-            sub_features_list = [sample[i] for sample in data_set]
-            unique_sub_features = set(sub_features_list)
+            feature_values_list = [sample[i] for sample in data_set]
+            feature_values_list = set(feature_values_list)
             entropy = 0.0
             iv = 0.0
-            for value in unique_sub_features:
-                sub_data_set = split_data_set_by_operate(data_set, i, value, operator.eq, delete_col=True)
+            for feature_value in feature_values_list:
+                sub_data_set = split_data_set_by_operate(data_set, i, feature_value, operator.eq, delete_col=True)
                 prob = float(len(sub_data_set)) / len(data_set)
                 entropy += prob * calculate_information_entropy(sub_data_set)
                 iv += prob * log(prob, 2)
@@ -99,15 +99,15 @@ def get_best_feature(data_set, features, is_features_discrete, ID3_or_C45):
             continuous_best_feature_value = -1
             continuous_best_gain_ratio = 0.0
 
-            sub_features_list = [sample[i] for sample in data_set]
-            unique_sub_features = set(sub_features_list)
-            unique_sub_features = sorted(unique_sub_features, reverse=False)
-            new_unique_sub_features = []
-            for j in range(len(unique_sub_features)-1):
-                new_unique_sub_features.append((unique_sub_features[j]+unique_sub_features[j+1])/2)
-            for value in new_unique_sub_features:
-                sub_data_set_le = split_data_set_by_operate(data_set, i, value, operator.le, delete_col=True)
-                sub_data_set_gt = split_data_set_by_operate(data_set, i, value, operator.gt, delete_col=True)
+            feature_values_list = [sample[i] for sample in data_set]
+            feature_values_list = set(feature_values_list)
+            feature_values_list = sorted(feature_values_list, reverse=False)
+            feature_values_mid_value_list = []
+            for j in range(len(feature_values_list)-1):
+                feature_values_mid_value_list.append((feature_values_list[j] + feature_values_list[j+1])/2)
+            for feature_value in feature_values_mid_value_list:
+                sub_data_set_le = split_data_set_by_operate(data_set, i, feature_value, operator.le, delete_col=True)
+                sub_data_set_gt = split_data_set_by_operate(data_set, i, feature_value, operator.gt, delete_col=True)
                 prob = float(len(sub_data_set_le)) / len(data_set)
                 entropy = prob * calculate_information_entropy(sub_data_set_le) + (1-prob) * calculate_information_entropy(sub_data_set_gt)
                 gain = base_entropy - entropy
@@ -115,7 +115,7 @@ def get_best_feature(data_set, features, is_features_discrete, ID3_or_C45):
                 gain_ratio = gain / (-iv)
                 if gain > continuous_best_gain:
                     continuous_best_gain = gain
-                    continuous_best_feature_value = value
+                    continuous_best_feature_value = feature_value
                     continuous_best_gain_ratio = gain_ratio
             gain_list.append(continuous_best_gain)
             gain_ratio_list.append(continuous_best_gain_ratio)

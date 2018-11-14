@@ -16,12 +16,12 @@ def get_best_feature_gini(data_set, features_list, is_features_discrete):
     continuous_feature_value = None
     for i in range(len(features_list)):
         # 处理离散型特征
-        feature_value_list = [sample[i] for sample in data_set]
-        feature_value_list = set(feature_value_list)
+        feature_values_list = [sample[i] for sample in data_set]
+        feature_values_list = set(feature_values_list)
         if is_features_discrete[i] == 1:
             gini_index = 0.0
             # 在一个feature上根据feature的取值的不同，划分成不同的sub data set
-            for value in feature_value_list:
+            for value in feature_values_list:
                 sub_data_set = split_data_set_by_operate(data_set, i, value, operator.eq, delete_col=False)
                 prob = float(len(sub_data_set))/len(data_set)
                 gini_index += prob * calculate_gini(sub_data_set)
@@ -32,13 +32,13 @@ def get_best_feature_gini(data_set, features_list, is_features_discrete):
         else:
             continuous_best_gini_index = 100
             continuous_best_feature_value = -1
-            feature_value_list = sorted(feature_value_list, reverse=False)
-            new_unique_sub_features = []
+            feature_values_list = sorted(feature_values_list, reverse=False)
+            feature_values_mid_value_list = []
             # 对于连续型特征，将其都有的取值进行排序，取连续两个取值的中值作为待测试划分
-            for j in range(len(feature_value_list) - 1):
-                new_unique_sub_features.append((feature_value_list[j] + feature_value_list[j + 1]) / 2)
+            for j in range(len(feature_values_list) - 1):
+                feature_values_mid_value_list.append((feature_values_list[j] + feature_values_list[j + 1]) / 2)
             # 对于所有计算得到的中值，进行测试
-            for value in new_unique_sub_features:
+            for value in feature_values_mid_value_list:
                 # 一个中值可以将数据分为两部分
                 sub_data_set_le = split_data_set_by_operate(data_set, i, value, operator.le, delete_col=True)
                 sub_data_set_gt = split_data_set_by_operate(data_set, i, value, operator.gt, delete_col=True)
@@ -80,19 +80,19 @@ def tree_generate_without_pruning(data_set_train, features_list, features_dict, 
         # 如果该特征是离散型的，从数据中删除该特征
         del (features_list[best_feature_index])
         tree = {best_feature_name: {}}
-        feature_value_set = features_dict[best_feature_name].keys()
+        feature_values_list = features_dict[best_feature_name].keys()
 
-        for feature_value in feature_value_set:
+        for feature_value in feature_values_list:
             new_features_list = features_list[:]
             sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, feature_value,
                                                            operator.eq, delete_col=True)
-            sub_feature_name = features_dict[best_feature_name][feature_value]
+            feature_value_name = features_dict[best_feature_name][feature_value]
             # 如果划分出来的子属性集合为空，则将分支结点标记为叶节点，其分类标记为data_set中样本最多的类
             if len(sub_data_set_train) == 0:
-                tree[best_feature_name][sub_feature_name] = get_most_common_class(data_set_train)
+                tree[best_feature_name][feature_value_name] = get_most_common_class(data_set_train)
             # 如果划分出来的子属性集合不为空，则继续递归
             else:
-                tree[best_feature_name][sub_feature_name] = tree_generate_without_pruning(sub_data_set_train,
+                tree[best_feature_name][feature_value_name] = tree_generate_without_pruning(sub_data_set_train,
                                                                                           new_features_list, features_dict,
                                                                                            is_features_discrete)
     else:
@@ -146,17 +146,17 @@ def tree_generate_with_pre_pruning(data_set_train, data_set_validate, features_l
     else:
         if is_features_discrete[best_feature_index] == 1:
             tree = {best_feature_name: {}}
-            sub_features_value_set = [sample[best_feature_index] for sample in data_set_train]
-            sub_features_value_set = set(sub_features_value_set)
+            feature_values_list = [sample[best_feature_index] for sample in data_set_train]
+            feature_values_list = set(feature_values_list)
 
-            for sub_feature_value in sub_features_value_set:
+            for feature_value in feature_values_list:
                 new_features_list = features_list[:]
-                sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, sub_feature_value,
+                sub_data_set_train = split_data_set_by_operate(data_set_train, best_feature_index, feature_value,
                                                                operator.eq, delete_col=True)
-                sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, sub_feature_value,
+                sub_data_set_validate = split_data_set_by_operate(data_set_validate, best_feature_index, feature_value,
                                                                   operator.eq, delete_col=True)
-                sub_feature_name = features_dict[best_feature_name][sub_feature_value]
-                tree[best_feature_name][sub_feature_name] = \
+                feature_value_name = features_dict[best_feature_name][feature_value]
+                tree[best_feature_name][feature_value_name] = \
                     tree_generate_with_pre_pruning(sub_data_set_train, sub_data_set_validate, new_features_list, features_dict, is_features_discrete)
         else:
             key = best_feature_name + '<=' + str.format("%0.3f" % best_continuous_feature_value)
