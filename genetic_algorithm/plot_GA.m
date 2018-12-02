@@ -1,6 +1,14 @@
 function plot_GA(population, fitness, fitness_function, lower_bound, upper_bound)
     % plot the fitness function curve and mark the point which has the
     % biggest fitness
+    % input:
+    %   population:
+    %   fitness:
+    %   fitness_function:
+    %   lower_bound:
+    %   upper_bound:
+    % output:
+    %   none
     Fs = 100;            % Sampling frequency                    
     L = (upper_bound - lower_bound)*Fs;
     X = lower_bound + (0:L)/Fs;
