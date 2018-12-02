@@ -4,7 +4,7 @@ function genetic_algorithm()
     upper_bound = 5;
     chromosome_length = 17;
     generation_count = 1000;
-    population_size = 4;
+    population_size = 20;
     mutate_rate = 0.003;
     cross_rate = 0.8;
     population = init_population(population_size, chromosome_length);
