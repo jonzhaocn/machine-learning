@@ -8,7 +8,7 @@ function offsprings = crossover(population, selection_result, chromosome_length,
     %   offsprings:
     offsprings = population(:, selection_result);
     
-    % idx for every variable in chromosome
+    % get position of every variable in chromosome
     idx_start = zeros(size(chromosome_length));
     idx_end = zeros(size(chromosome_length));
     for i=1:numel(idx_start)
@@ -29,7 +29,7 @@ function offsprings = crossover(population, selection_result, chromosome_length,
                 if cross_position == idx_start(j)-1 || cross_position == idx_start(j)
                     continue
                 end
-                % swap
+                % crossover two offsprings
                 temp = offsprings(:,i);
                 offsprings(cross_position:idx_end(j), i) = offsprings(cross_position:idx_end(j), i+1);
                 offsprings(cross_position:idx_end(j), i+1) = temp(cross_position:idx_end(j));

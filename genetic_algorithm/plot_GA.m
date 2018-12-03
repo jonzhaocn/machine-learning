@@ -1,5 +1,5 @@
 function plot_GA(population, fitness, chromosome_length, bound, plot_variables, plot_R)
-    % plot the fitness function curve and mark the point which has the
+    % mark the point which has the largest fitness in population
     % biggest fitness
     % input:
     %   population:

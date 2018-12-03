@@ -19,6 +19,7 @@ function selection_result = roulette_wheel_selection(fitness)
         end
     end
     wheel = wheel / sum_fit;
+    % start selecting
     selection_result = zeros(1, floor((population_size+1)/2)*2);
     for i = 1:2:floor((population_size+1)/2)*2
         selection_result(i) = bi_search(wheel, rand());
