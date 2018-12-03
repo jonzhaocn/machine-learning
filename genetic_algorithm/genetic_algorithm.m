@@ -9,6 +9,8 @@ function genetic_algorithm(Setting)
     mutate_rate = Setting.mutate_rate;
     cross_rate = Setting.cross_rate;
     fitness_function = Setting.fitness_function;
+    crossover_operator = Setting.crossover_operator;
+    mutation_operator = Setting.mutation_operator;
     % init population
     population = init_population(population_size, chromosome_length);
     % init plot_GA, draw the fitness function
@@ -20,8 +22,8 @@ function genetic_algorithm(Setting)
         plot_GA(population, fitness, chromosome_length, bound, plot_variables, plot_R);
         % selection - crossover - mutation
         parent_selection_result = roulette_wheel_selection(fitness);
-        offsprings = crossover(population, parent_selection_result, chromosome_length, cross_rate);
-        offsprings = mutation(offsprings, chromosome_length, mutate_rate);
+        offsprings = crossover(population, parent_selection_result, chromosome_length, cross_rate, crossover_operator);
+        offsprings = mutation(offsprings, chromosome_length, mutate_rate, mutation_operator);
         % survivor selection
         offsprings_fitness = calculate_fitness(offsprings, fitness_function, chromosome_length, bound);
         population = survivor_selection(population, offsprings, fitness, offsprings_fitness);

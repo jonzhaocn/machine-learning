@@ -6,10 +6,12 @@ clear;
 Setting.chromosome_length = [25, 25];
 Setting.bound = [-10, 10, -10, 10];
 Setting.generation_count = 1000;
-Setting.population_size = 50;
+Setting.population_size = 25;
 Setting.mutate_rate = 0.03;
 Setting.cross_rate = 0.8;
 Setting.fitness_function = @fitness_function2;
+Setting.crossover_operator = 'one_point_crossover';
+Setting.mutation_operator = 'bit_flip_mutation';
 genetic_algorithm(Setting);
 
 function result = fitness_function2(variables)
