@@ -11,10 +11,12 @@ function genetic_algorithm(Setting)
     fitness_function = Setting.fitness_function;
     % init population
     population = init_population(population_size, chromosome_length);
+    % init plot_GA
+    [plot_variables, plot_R] = plot_GA_init(fitness_function, chromosome_length, bound);
     % evolution
     for iteration = 1:generation_count
         fitness = calculate_fitness(population, fitness_function, chromosome_length, bound);
-        plot_GA(population, fitness, fitness_function, chromosome_length, bound);
+        plot_GA(population, fitness, chromosome_length, bound, plot_variables, plot_R);
         parent_selection_result = roulette_wheel_selection(fitness);
         offsprings = crossover(population, parent_selection_result, chromosome_length, cross_rate);
         offsprings = mutation(offsprings, chromosome_length, mutate_rate);
