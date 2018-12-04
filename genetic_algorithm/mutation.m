@@ -3,9 +3,22 @@ function offsprings = mutation(offsprings, chromosome_length, mutation_rate, mut
     % input:
     %   population:
     %   chromosome_length:
-    %   mutate_rate:
+    %   mutation_rate:
     % output:
     %   offsprings:
+    
+    if ~ismatrix(offsprings)
+        error('offsprings should be a matrix')
+    end
+    if ~isvector(chromosome_length)
+        error('chromosome_length should be a vector')
+    end
+    if ~isscalar(mutation_rate)
+        error('mutation_rate should be a scalar')
+    end
+    if ~ischar(mutation_operator)
+        error('mutation_operator should be a string')
+    end
     
     % get position of every variable in chromosome
     idx_start = zeros(size(chromosome_length));

@@ -8,6 +8,22 @@ function plot_GA(population, fitness, chromosome_length, bound, plot_variables, 
     %   bound:
     % output:
     %   none
+    
+    if ~ismatrix(population)
+        error('population should be a matrix')
+    end
+    if ~isvector(fitness)
+        error('fitness should be a fitness')
+    end
+    if ~isvector(bound)
+        error('bound should be a vector')
+    end
+    if ~iscell(plot_variables)
+        error('plot_variables should be a cell')
+    end
+    if ~ismatrix(plot_R)
+        error('plot_R should be a matrix')
+    end
     if numel(chromosome_length)~=1 && numel(chromosome_length)~=2
         error('chromosome_length shoule be a row vector of 1 or 2 length');
     end

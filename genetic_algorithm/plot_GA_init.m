@@ -1,6 +1,15 @@
 function [variables, R] = plot_GA_init(fitness_function, chromosome_length, bound)
     % plot the fitness funtion
     
+    if ~isa(fitness_function, 'function_handle')
+        error('fitness_function should be a function handle')
+    end
+    if ~isvector(chromosome_length)
+        error('chromosome_length should be a vector')
+    end
+    if ~isvector(bound)
+        error('bound should be a vector')
+    end
     % check inputs
     if numel(chromosome_length)~=1 && numel(chromosome_length)~=2
         error('error');

@@ -1,4 +1,4 @@
-function offsprings = crossover(population, selection_result, chromosome_length, cross_rate, crossover_operator)
+function offsprings = crossover(population, selection_result, chromosome_length, crossover_rate, crossover_operator)
     % crossover
     % input:
     %   population:
@@ -6,6 +6,23 @@ function offsprings = crossover(population, selection_result, chromosome_length,
     %   cross_rate:
     % output:
     %   offsprings:
+    
+    if ~ismatrix(population)
+        error('population should be a matrix')
+    end
+    if ~isvector(selection_result)
+        error('selection_result should be vector')
+    end
+    if ~isvector(chromosome_length)
+        error('chromosome_length should be a vector')
+    end
+    if ~isscalar(crossover_rate)
+        error('cross_rate should be a scalar')
+    end
+    if ~ischar(crossover_operator)
+        error('crossover_operator should be a string')
+    end
+    
     offsprings = population(:, selection_result);
     
     % get position of every variable in chromosome
@@ -27,13 +44,13 @@ function offsprings = crossover(population, selection_result, chromosome_length,
     else
         error('wrong crossover operator: %s', crossover_operator);
     end
-    offsprings = crossover_function(offsprings, chromosome_length, idx_start, cross_rate);
+    offsprings = crossover_function(offsprings, chromosome_length, idx_start, crossover_rate);
 end
 
-function offsprings = one_point_crossover(offsprings, chro_length, idx_start, cross_rate)
+function offsprings = one_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
     for i = 1:2:size(offsprings, 2)
-        if rand < cross_rate
+        if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
                 cross_posi_start = idx_start(j)+round(chro_length(j)*rand())-1;
@@ -50,10 +67,10 @@ function offsprings = one_point_crossover(offsprings, chro_length, idx_start, cr
     end
 end
 
-function offsprings = multi_point_crossover(offsprings, chro_length, idx_start, cross_rate)
+function offsprings = multi_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
     for i = 1:2:size(offsprings, 2)
-        if rand < cross_rate
+        if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
                 cross_posi_start = idx_start(j)+round(chro_length(j)*rand())-1;
@@ -75,10 +92,10 @@ function offsprings = multi_point_crossover(offsprings, chro_length, idx_start, 
     end
 end
 
-function offsprings = uniform_crossover(offsprings, chro_length, idx_start, cross_rate)
+function offsprings = uniform_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
     for i = 1:2:size(offsprings, 2)
-        if rand < cross_rate
+        if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
                 cross_position = round(rand(chro_length(j),1));

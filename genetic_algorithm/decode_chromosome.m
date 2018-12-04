@@ -6,6 +6,15 @@ function variables = decode_chromosome(chromosome, chromosome_length, bound)
     %   bound: the lower bound and upper bound of every variable
     % output:
     %   variables: a cell
+    if ~ismatrix(chromosome)
+        error('chromosome should be a matrix')
+    end
+    if ~isvector(chromosome_length)
+        error('chromosome_length should be a vector')
+    end
+    if ~isvector(bound)
+        error('bound should be a vector')
+    end
     variables = cell(1, numel(chromosome_length));
     % for every variable
     for i=1:numel(chromosome_length)

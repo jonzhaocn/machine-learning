@@ -4,6 +4,9 @@ function selection_result = roulette_wheel_selection(fitness)
     %   fitness: fitness vector of every individual
     % output:
     %   selection_result: array of index of selected individuals
+    if ~isvector(fitness)
+        error('fitness function should be a vector')
+    end
     population_size = size(fitness,2);
     % normalize fitness values
     min_fit = min(fitness);
