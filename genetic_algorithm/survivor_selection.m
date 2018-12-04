@@ -1,4 +1,4 @@
-function [population, fitness] = survivor_selection(population, offsprings, fitness, offsprings_fitness)
+function [population, fitness] = survivor_selection(population, offsprings, fitness, offsprings_fitness, min_or_max)
     % selecting survivor after generating offsprings
     if ~ismatrix(population)
         error('population should be a matrix')
@@ -12,10 +12,17 @@ function [population, fitness] = survivor_selection(population, offsprings, fitn
     if ~isvector(offsprings_fitness)
         error('offsprings_fitness should be a vector')
     end
+    if ~strcmp(min_or_max, 'min') && ~strcmp(min_or_max, 'max')
+        error('min or max')
+    end
     population_size = size(population, 2);
     fitness = [fitness, offsprings_fitness];
     population = [population, offsprings];
     % selection based on the fitness value
-    [fitness, index] = sort(fitness, 'descend');
+    if strcmp(min_or_max, 'max')
+        [fitness, index] = sort(fitness, 'descend');
+    else
+        [fitness, index] = sort(fitness);
+    end
     population = population(:, index(1:population_size));
 end

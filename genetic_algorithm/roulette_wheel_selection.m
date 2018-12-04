@@ -1,4 +1,4 @@
-function selection_result = roulette_wheel_selection(fitness)
+function selection_result = roulette_wheel_selection(fitness, min_or_max)
     % roulette wheel selection
     % input:
     %   fitness: fitness vector of every individual
@@ -6,6 +6,9 @@ function selection_result = roulette_wheel_selection(fitness)
     %   selection_result: array of index of selected individuals
     if ~isvector(fitness)
         error('fitness function should be a vector')
+    end
+    if ~strcmp(min_or_max, 'min') && ~strcmp(min_or_max, 'max')
+        error('min or max')
     end
     population_size = size(fitness,2);
     % normalize fitness values
@@ -22,6 +25,10 @@ function selection_result = roulette_wheel_selection(fitness)
         end
     end
     wheel = wheel / sum_fit;
+    % ----
+    if strcmp(min_or_max, 'min')
+        wheel = 1 - wheel;
+    end
     % start selecting
     selection_result = zeros(1, floor((population_size+1)/2)*2);
     for i = 1:2:floor((population_size+1)/2)*2
