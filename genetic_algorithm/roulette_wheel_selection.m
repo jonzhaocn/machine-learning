@@ -12,8 +12,15 @@ function selection_result = roulette_wheel_selection(fitness, min_or_max)
     end
     population_size = size(fitness,2);
     % normalize fitness values
-    min_fit = min(fitness);
-    fitness = fitness - min_fit;
+    % ----
+    if strcmp(min_or_max, 'max')
+        min_fit = min(fitness);
+        fitness = fitness - min_fit;
+    else 
+        fitness = -fitness;
+        min_fit = min(fitness);
+        fitness = fitness - min_fit;
+    end
     % create roulette wheel
     sum_fit = sum(fitness);
     wheel = zeros(size(fitness));
@@ -25,15 +32,11 @@ function selection_result = roulette_wheel_selection(fitness, min_or_max)
         end
     end
     wheel = wheel / sum_fit;
-    % ----
-    if strcmp(min_or_max, 'min')
-        wheel = 1 - wheel;
-    end
     % start selecting
     selection_result = zeros(1, floor((population_size+1)/2)*2);
-    for i = 1:2:floor((population_size+1)/2)*2
+    for i = 1:floor((population_size+1)/2)*2
         selection_result(i) = bi_search(wheel, rand());
-        selection_result(i+1) = mod(selection_result(i), population_size)+1;
+%         selection_result(i+1) = mod(selection_result(i), population_size)+1;
     end
 end
 
@@ -50,13 +53,13 @@ function idx = bi_search(wheel, value)
     while first<last && idx==-1
         mid = round((first+last)/2);
         if value > wheel(mid)
-            first = mid+1;
+            first = mid;
         elseif value < wheel(mid)
-            last = mid-1;
+            last = mid;
         else
             idx = mid;
         end
-        if last-first <=1
+        if last-first == 1
             idx = last;
             break;
         end

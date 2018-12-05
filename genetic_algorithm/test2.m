@@ -22,7 +22,7 @@ function result = fitness_function2(variables)
     x = variables{1};
     y = variables{2};
     result = x.^2 + y.^2;
-    result = -0.5 + (sin(sqrt(result)).^2-0.5)./(1+0.001*result).^2;
+    result = 0.5 - (sin(sqrt(result)).^2-0.5)./(1+0.001*result).^2;
 end
 function result = fitness_function3(variables)
     % min value is 0 at [1, 1]

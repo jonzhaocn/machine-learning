@@ -80,7 +80,8 @@ function offsprings = multi_point_crossover(offsprings, chro_length, idx_start, 
                     cross_posi_start = cross_posi_end;
                     cross_posi_end = temp;
                 end
-                if cross_posi_start == idx_start(j)-1 || cross_posi_end == idx_start(j)+chro_length(j)
+                if cross_posi_start == idx_start(j)-1 || cross_posi_end == idx_start(j)-1 || ...
+                        cross_posi_start == idx_start(j)+chro_length(j) || cross_posi_end == idx_start(j)+chro_length(j)
                     continue
                 end
                 % crossover of two offsprings
