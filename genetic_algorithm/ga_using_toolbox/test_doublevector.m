@@ -10,11 +10,11 @@ ObjectiveFunction = @fitness_function1;
 nvars = 2;
 LB = [-5 -5];
 UB = [5 5];
-plot_fitness_function(@rastriginsfcn, LB, UB);
+plot_fitness_function(ObjectiveFunction, LB, UB);
 % PopulationSize: 50 for five or fewer variables, otherwise 200
-options = optimoptions(@ga,'PopulationSize',50, 'MaxGenerations',300, ...
-    'InitialPopulationMatrix', [], 'CrossoverFcn', @crossoversinglepoint, ...
-    'MutationFcn', @mutationgaussian, 'FunctionTolerance', 1e-6, 'PopulationType','doublevector',...
+options = optimoptions(@ga,'PopulationSize',50, 'MaxGenerations',1000, ...
+    'InitialPopulationMatrix', [], 'CrossoverFcn', @crossoverintermediate, ...
+    'MutationFcn', @mutationadaptfeasible, 'FunctionTolerance', 1e-6, 'PopulationType','doublevector',...
     'PlotFcn',{@gaplotbestf,@gaplotdistance,@gaplotrange}, 'Display','iter');
 [x,fval] = ga(ObjectiveFunction,nvars,[],[],[],[],LB,UB, [], options);
 fprintf('best point is: [%s], and its fitness is %f\n', num2str(x), fval);
@@ -52,5 +52,6 @@ function plot_fitness_function(func, LB, UB)
             result(i, j) = func([X(i, j), Y(i,j)]);
         end
     end
+    figure(1);
     mesh(X, Y, result);
 end

@@ -1,4 +1,4 @@
-function variables = decode_chromosome(chromosome, chromosome_length, bound)
+function variables = decode_chromosome(chromosome, chromosome_length, LB, UB)
     % decode chromosome to real number
     % input:
     %   chromosome:
@@ -12,14 +12,14 @@ function variables = decode_chromosome(chromosome, chromosome_length, bound)
     if ~isvector(chromosome_length)
         error('chromosome_length should be a vector')
     end
-    if ~isvector(bound)
-        error('bound should be a vector')
+    if ~isvector(LB) || ~isvector(UB)
+        error('LB and UB should be a vector')
     end
     variables = cell(1, numel(chromosome_length));
     % for every variable
     for i=1:numel(chromosome_length)
-        lower_bound = bound(2*i-1);
-        upper_bound = bound(2*i);
+        lower_bound = LB(i);
+        upper_bound = UB(i);
         chromosome_size = chromosome_length(i);
         % get the according part of variable in chromosome
         idx_start = sum(chromosome_length(1:i-1))+1;

@@ -1,4 +1,4 @@
-function [variables, R] = plot_GA_init(fitness_function, chromosome_length, bound)
+function [variables, R] = plot_GA_init(fitness_function, chromosome_length, LB, UB)
     % plot the fitness funtion
     
     if ~isa(fitness_function, 'function_handle')
@@ -7,8 +7,8 @@ function [variables, R] = plot_GA_init(fitness_function, chromosome_length, boun
     if ~isvector(chromosome_length)
         error('chromosome_length should be a vector')
     end
-    if ~isvector(bound)
-        error('bound should be a vector')
+    if ~isvector(LB) || ~isvector(UB)
+        error('LB and UB should be a vector')
     end
     % check inputs
     if numel(chromosome_length)~=1 && numel(chromosome_length)~=2
@@ -17,8 +17,8 @@ function [variables, R] = plot_GA_init(fitness_function, chromosome_length, boun
     % create variables as fitness function input 
     variables = cell(1, numel(chromosome_length));
     for i = 1:numel(chromosome_length)
-        lower_bound = bound(2*i-1);
-        upper_bound = bound(2*i);
+        lower_bound = LB(i);
+        upper_bound = UB(i);
         Fs = 100;            % Sampling frequency
         L = (upper_bound - lower_bound)*Fs;
         variables{i} = lower_bound + (0:L-1)/Fs;

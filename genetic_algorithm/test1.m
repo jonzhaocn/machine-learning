@@ -3,7 +3,10 @@ clear;
 % testing example of function of one variable
 % every chromosome represent a variable
 Setting.chromosome_length = 17;
-Setting.bound = [0, 5];
+Setting.LB = 0;
+Setting.UB = 5;
+Setting.do_plot = true;
+Setting.min_or_max = 'max';
 Setting.generation_count = 1000;
 Setting.population_size = 10;
 Setting.mutation_rate = 0.03;

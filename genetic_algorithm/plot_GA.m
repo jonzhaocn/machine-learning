@@ -1,4 +1,4 @@
-function plot_GA(population, fitness, chromosome_length, bound, plot_variables, plot_R, min_or_max)
+function plot_GA(population, fitness, chromosome_length, LB, UB, plot_variables, plot_R, min_or_max)
     % mark the point which has the largest fitness in population
     % biggest fitness
     % input:
@@ -15,8 +15,8 @@ function plot_GA(population, fitness, chromosome_length, bound, plot_variables, 
     if ~isvector(fitness)
         error('fitness should be a fitness')
     end
-    if ~isvector(bound)
-        error('bound should be a vector')
+    if ~isvector(LB) || ~isvector(UB)
+        error('LB and UB should be a vector')
     end
     if ~iscell(plot_variables)
         error('plot_variables should be a cell')
@@ -25,7 +25,7 @@ function plot_GA(population, fitness, chromosome_length, bound, plot_variables, 
         error('plot_R should be a matrix')
     end
     if numel(chromosome_length)~=1 && numel(chromosome_length)~=2
-        error('chromosome_length shoule be a row vector of 1 or 2 length');
+        error('chromosome_length shoule be a row vector of 1 or 2 length, only can plot curve or surface');
     end
     if ~strcmp(min_or_max, 'min') && ~strcmp(min_or_max, 'max')
         error('min or max')
@@ -36,7 +36,7 @@ function plot_GA(population, fitness, chromosome_length, bound, plot_variables, 
         [~, target_index] = min(fitness);
     end
     target_chromosome = population(:,target_index);
-    target_var = decode_chromosome(target_chromosome, chromosome_length, bound);
+    target_var = decode_chromosome(target_chromosome, chromosome_length, LB, UB);
     min_map = 0;
     for i = 1:numel(target_var)
         min_map = min_map + (plot_variables{i}-target_var{i}).^2;

@@ -1,4 +1,4 @@
-function fitness = calculate_fitness(population, fitness_function, chromosome_length, bound)
+function fitness = calculate_fitness(population, fitness_function, chromosome_length, LB, UB)
     % calculate fitness of every individual according to fitness function
     % input:
     %   population:
@@ -16,9 +16,9 @@ function fitness = calculate_fitness(population, fitness_function, chromosome_le
     if ~isvector(chromosome_length)
         error('chromosome_length should be a vector')
     end
-    if ~isvector(bound)
-        error('bound should be a vector')
+    if ~isvector(LB) || ~isvector(UB)
+        error('LB and UB should be a vector')
     end
-    input = decode_chromosome(population, chromosome_length, bound);
+    input = decode_chromosome(population, chromosome_length, LB, UB);
     fitness = fitness_function(input);
 end
