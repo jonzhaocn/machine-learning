@@ -37,8 +37,8 @@ function offsprings = crossover(population, selection_result, chromosome_length,
     % mutation
     if strcmp(crossover_operator, 'one_point_crossover')
         crossover_function = @one_point_crossover;
-    elseif strcmp(crossover_operator, 'multi_point_crossover')
-        crossover_function = @multi_point_crossover;
+    elseif strcmp(crossover_operator, 'two_point_crossover')
+        crossover_function = @two_point_crossover;
     elseif strcmp(crossover_operator, 'uniform_crossover')
         crossover_function = @uniform_crossover;
     else
@@ -67,7 +67,7 @@ function offsprings = one_point_crossover(offsprings, chro_length, idx_start, cr
     end
 end
 
-function offsprings = multi_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
+function offsprings = two_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
     for i = 1:2:size(offsprings, 2)
         if rand < crossover_rate
