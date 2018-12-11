@@ -23,7 +23,7 @@ function offsprings = crossover(population, selection_result, chromosome_length,
         error('crossover_operator should be a string')
     end
     
-    offsprings = population(:, selection_result);
+    offsprings = population(selection_result, :);
     
     % get position of every variable in chromosome
     idx_start = zeros(size(chromosome_length));
@@ -49,7 +49,7 @@ end
 
 function offsprings = one_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
-    for i = 1:2:size(offsprings, 2)
+    for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
@@ -59,9 +59,9 @@ function offsprings = one_point_crossover(offsprings, chro_length, idx_start, cr
                 end
                 % crossover of two offsprings
                 cross_posi_end = idx_start(j)+chro_length(j)-1;
-                temp = offsprings(:,i);
-                offsprings(cross_posi_start:cross_posi_end, i) = offsprings(cross_posi_start:cross_posi_end, i+1);
-                offsprings(cross_posi_start:cross_posi_end, i+1) = temp(cross_posi_start:cross_posi_end);
+                temp = offsprings(i, :);
+                offsprings(i, cross_posi_start:cross_posi_end) = offsprings(i+1, cross_posi_start:cross_posi_end);
+                offsprings(i+1, cross_posi_start:cross_posi_end) = temp(cross_posi_start:cross_posi_end);
             end
         end
     end
@@ -69,7 +69,7 @@ end
 
 function offsprings = two_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
-    for i = 1:2:size(offsprings, 2)
+    for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
@@ -85,9 +85,9 @@ function offsprings = two_point_crossover(offsprings, chro_length, idx_start, cr
                     continue
                 end
                 % crossover of two offsprings
-                temp = offsprings(:,i);
-                offsprings(cross_posi_start:cross_posi_end, i) = offsprings(cross_posi_start:cross_posi_end, i+1);
-                offsprings(cross_posi_start:cross_posi_end, i+1) = temp(cross_posi_start:cross_posi_end);
+                temp = offsprings(i, :);
+                offsprings(i, cross_posi_start:cross_posi_end) = offsprings(i+1, cross_posi_start:cross_posi_end);
+                offsprings(i+1, cross_posi_start:cross_posi_end) = temp(cross_posi_start:cross_posi_end);
             end
         end
     end
@@ -95,16 +95,16 @@ end
 
 function offsprings = uniform_crossover(offsprings, chro_length, idx_start, crossover_rate)
     % for every parent
-    for i = 1:2:size(offsprings, 2)
+    for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
             % for every part of chromosome
             for j =1:numel(chro_length)
                 cross_position = round(rand(chro_length(j),1));
                 cross_position = find(cross_position==1)+idx_start(j)-1;
                 % crossover of two offsprings
-                temp = offsprings(:,i);
-                offsprings(cross_position, i) = offsprings(cross_position, i+1);
-                offsprings(cross_position, i+1) = temp(cross_position);
+                temp = offsprings(i, :);
+                offsprings(i, cross_position) = offsprings(i+1, cross_position);
+                offsprings(i+1, cross_position) = temp(cross_position);
             end
         end
     end

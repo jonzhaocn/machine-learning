@@ -10,7 +10,7 @@ function selection_result = roulette_wheel_selection(fitness, min_or_max)
     if ~strcmp(min_or_max, 'min') && ~strcmp(min_or_max, 'max')
         error('min or max')
     end
-    population_size = size(fitness,2);
+    population_size = size(fitness, 1);
     % normalize fitness values
     % ----
     if strcmp(min_or_max, 'max')
@@ -48,7 +48,7 @@ function idx = bi_search(wheel, value)
     % output:
     %   idx: index of target value in wheel
     first = 1;
-    last = size(wheel, 2);
+    last = size(wheel, 1);
     idx = -1;
     while first<last && idx==-1
         mid = round((first+last)/2);

@@ -52,7 +52,7 @@ function target_fitness_change = genetic_algorithm(Setting)
     else
         [target_fitness, target_index] = min(fitness);
     end
-    max_chromosome = population(:,target_index);
+    max_chromosome = population(target_index, :);
     max_var = decode_chromosome(max_chromosome, chromosome_length, LB, UB);
     max_var = cellfun(@(x) x, max_var);
     fprintf('target_fitness is %f at point [%s]\n', target_fitness, num2str(max_var));

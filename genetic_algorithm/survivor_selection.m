@@ -15,14 +15,14 @@ function [population, fitness] = survivor_selection(population, offsprings, fitn
     if ~strcmp(min_or_max, 'min') && ~strcmp(min_or_max, 'max')
         error('min or max')
     end
-    population_size = size(population, 2);
-    fitness = [fitness, offsprings_fitness];
-    population = [population, offsprings];
+    population_size = size(population, 1);
+    fitness = [fitness; offsprings_fitness];
+    population = [population; offsprings];
     % selection based on the fitness value
     if strcmp(min_or_max, 'max')
         [fitness, index] = sort(fitness, 'descend');
     else
         [fitness, index] = sort(fitness);
     end
-    population = population(:, index(1:population_size));
+    population = population(index(1:population_size), :);
 end

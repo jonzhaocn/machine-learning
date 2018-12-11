@@ -49,7 +49,7 @@ function offsprings = bit_flip_mutation(offsprings, chromosome_length, idx_start
 % reference: https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
 % In this bit flip mutation, we select one or more random bits and flip 
 % them. This is used for binary encoded GAs.
-    for i = 1:size(offsprings, 2)
+    for i = 1:size(offsprings, 1)
         if rand < mutation_rate
             for j=1:numel(chromosome_length)
                 % get mutation positon
@@ -57,7 +57,7 @@ function offsprings = bit_flip_mutation(offsprings, chromosome_length, idx_start
                 if mutation_position == idx_start(j)-1
                     continue;
                 end
-                offsprings(mutation_position, i) = 1 - offsprings(mutation_position, i);
+                offsprings(i, mutation_position) = 1 - offsprings(i, mutation_position);
             end
         end
     end
@@ -65,7 +65,7 @@ end
 function offsprings = swap_mutation(offsprings, chromosome_length, idx_start, mutation_rate)
 % In swap mutation, we select two positions on the chromosome at random, 
 % and interchange the values.
-    for i = 1:size(offsprings, 2)
+    for i = 1:size(offsprings, 1)
         if rand < mutation_rate
             for j=1:numel(chromosome_length)
                 % get mutation positon
@@ -73,9 +73,9 @@ function offsprings = swap_mutation(offsprings, chromosome_length, idx_start, mu
                 if numel(find(mutation_position==idx_start(j)-1))~=0
                     continue;
                 end
-                temp = offsprings(mutation_position(1), i);
-                offsprings(mutation_position(1), i) = offsprings(mutation_position(2), i);
-                offsprings(mutation_position(2), i) = temp;
+                temp = offsprings(i, mutation_position(1));
+                offsprings(i, mutation_position(1)) = offsprings(i, mutation_position(2));
+                offsprings(i, mutation_position(2)) = temp;
             end
         end
     end
@@ -83,7 +83,7 @@ end
 function offsprings = scramble_mutation(offsprings, chromosome_length, idx_start, mutation_rate)
 % In this, from the entire chromosome, a subset of genes is chosen 
 % and their values are scrambled or shuffled randomly.
-    for i = 1:size(offsprings, 2)
+    for i = 1:size(offsprings, 1)
         if rand < mutation_rate
             for j=1:numel(chromosome_length)
                 % get mutation positon
@@ -98,9 +98,9 @@ function offsprings = scramble_mutation(offsprings, chromosome_length, idx_start
                         || muta_posi_end==idx_start(j)+chromosome_length(j)
                     continue;
                 end
-                temp = offsprings(muta_posi_start:muta_posi_end, i);
+                temp = offsprings(i, muta_posi_start:muta_posi_end);
                 temp = temp(randperm(numel(temp)));
-                offsprings(muta_posi_start:muta_posi_end, i) = temp;
+                offsprings(i, muta_posi_start:muta_posi_end) = temp;
             end
         end
     end
@@ -110,7 +110,7 @@ function offsprings = inversion_mutation(offsprings, chromosome_length, idx_star
 % mutation, but instead of shuffling the subset, we merely invert the 
 % entire string in the subset.
     % get mutation positon
-    for i = 1:size(offsprings, 2)
+    for i = 1:size(offsprings, 1)
         if rand < mutation_rate
             for j=1:numel(chromosome_length)
                 % get mutation positon
@@ -125,7 +125,7 @@ function offsprings = inversion_mutation(offsprings, chromosome_length, idx_star
                         || muta_posi_end==idx_start(j)+chromosome_length(j)
                     continue;
                 end
-                offsprings(muta_posi_start:muta_posi_end, i) = offsprings(muta_posi_end:-1:muta_posi_start, i);
+                offsprings(i, muta_posi_start:muta_posi_end) = offsprings(i, muta_posi_end:-1:muta_posi_start);
             end
         end
     end

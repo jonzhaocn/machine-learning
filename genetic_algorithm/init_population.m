@@ -1,6 +1,6 @@
 function population = init_population(population_size, chromosome_length)
     % initialize population
-    % each column is a individual
+    % each row is a individual
     % input:
     %   population_size:
     %   chromosome_length:
@@ -13,5 +13,5 @@ function population = init_population(population_size, chromosome_length)
         error('chromosome_length should be a vector')
     end
     chromosome_length = sum(chromosome_length);
-    population = round(rand(chromosome_length, population_size));
+    population = round(rand(population_size, chromosome_length));
 end

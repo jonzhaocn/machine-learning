@@ -23,9 +23,9 @@ function variables = decode_chromosome(chromosome, chromosome_length, LB, UB)
         chromosome_size = chromosome_length(i);
         % get the according part of variable in chromosome
         idx_start = sum(chromosome_length(1:i-1))+1;
-        part_of_chro = chromosome(idx_start:idx_start+chromosome_length(i)-1, :);
+        part_of_chro = chromosome(:, idx_start:idx_start+chromosome_length(i)-1);
         % transform the chromosome to real number
-        variable = pow2(size(part_of_chro,1)-1:-1:0) * part_of_chro;
+        variable = part_of_chro * pow2(size(part_of_chro, 2)-1:-1:0)';
         variable = lower_bound + variable * (upper_bound-lower_bound) / (2^chromosome_size-1);
         variables{i} = variable;
     end

@@ -35,7 +35,7 @@ function plot_GA(population, fitness, chromosome_length, LB, UB, plot_variables,
     else
         [~, target_index] = min(fitness);
     end
-    target_chromosome = population(:,target_index);
+    target_chromosome = population(target_index, :);
     target_var = decode_chromosome(target_chromosome, chromosome_length, LB, UB);
     min_map = 0;
     for i = 1:numel(target_var)
