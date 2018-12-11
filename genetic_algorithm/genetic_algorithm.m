@@ -14,7 +14,7 @@ function target_fitness_change = genetic_algorithm(Setting)
     mutation_operator = Setting.mutation_operator;
     min_or_max = Setting.min_or_max;
     do_plot = Setting.do_plot;
-    % ---
+    % ---check
     if ~islogical(do_plot)
         error('do_plot should be logical')
     end
@@ -52,8 +52,9 @@ function target_fitness_change = genetic_algorithm(Setting)
     else
         [target_fitness, target_index] = min(fitness);
     end
-    max_chromosome = population(target_index, :);
-    max_var = decode_chromosome(max_chromosome, chromosome_length, LB, UB);
-    max_var = cellfun(@(x) x, max_var);
-    fprintf('target_fitness is %f at point [%s]\n', target_fitness, num2str(max_var));
+    % print the target fitness
+    target_chromosome = population(target_index, :);
+    target_var = decode_chromosome(target_chromosome, chromosome_length, LB, UB);
+    target_var = cellfun(@(x) x, target_var);
+    fprintf('target_fitness is %f at point [%s]\n', target_fitness, num2str(target_var));
 end

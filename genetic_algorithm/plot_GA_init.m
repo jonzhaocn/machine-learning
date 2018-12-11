@@ -14,7 +14,7 @@ function [variables, R] = plot_GA_init(fitness_function, chromosome_length, LB, 
     if numel(chromosome_length)~=1 && numel(chromosome_length)~=2
         error('error');
     end
-    % create variables as fitness function input 
+    % create variables for plotting fitness function 
     variables = cell(1, numel(chromosome_length));
     for i = 1:numel(chromosome_length)
         lower_bound = LB(i);

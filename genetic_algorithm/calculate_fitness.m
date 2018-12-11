@@ -19,6 +19,7 @@ function fitness = calculate_fitness(population, fitness_function, chromosome_le
     if ~isvector(LB) || ~isvector(UB)
         error('LB and UB should be a vector')
     end
+    % decode chromosome to real number and calculate fitness
     input = decode_chromosome(population, chromosome_length, LB, UB);
     fitness = fitness_function(input);
 end

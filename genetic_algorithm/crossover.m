@@ -25,7 +25,7 @@ function offsprings = crossover(population, selection_result, chromosome_length,
     
     offsprings = population(selection_result, :);
     
-    % get position of every variable in chromosome
+    % get start position of every variable in a chromosome
     idx_start = zeros(size(chromosome_length));
     for i=1:numel(idx_start)
         if i==1
@@ -48,16 +48,17 @@ function offsprings = crossover(population, selection_result, chromosome_length,
 end
 
 function offsprings = one_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
-    % for every parent
+    % for every pair of parents
     for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
-            % for every part of chromosome
+            % for every variable in a chromosome
             for j =1:numel(chro_length)
+                % get the crossover position
                 cross_posi_start = idx_start(j)+round(chro_length(j)*rand())-1;
                 if cross_posi_start == idx_start(j)-1 || cross_posi_start == idx_start(j)
                     continue
                 end
-                % crossover of two offsprings
+                % crossover of two parnet and generate two offsprings
                 cross_posi_end = idx_start(j)+chro_length(j)-1;
                 temp = offsprings(i, :);
                 offsprings(i, cross_posi_start:cross_posi_end) = offsprings(i+1, cross_posi_start:cross_posi_end);
@@ -68,11 +69,12 @@ function offsprings = one_point_crossover(offsprings, chro_length, idx_start, cr
 end
 
 function offsprings = two_point_crossover(offsprings, chro_length, idx_start, crossover_rate)
-    % for every parent
+    % for every pair of parents
     for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
-            % for every part of chromosome
+            % for every variable in a chromosome
             for j =1:numel(chro_length)
+                % get the crossover position
                 cross_posi_start = idx_start(j)+round(chro_length(j)*rand())-1;
                 cross_posi_end = idx_start(j)+round(chro_length(j)*rand())-1;
                 if cross_posi_end < cross_posi_start
@@ -84,7 +86,7 @@ function offsprings = two_point_crossover(offsprings, chro_length, idx_start, cr
                         cross_posi_start == idx_start(j)+chro_length(j) || cross_posi_end == idx_start(j)+chro_length(j)
                     continue
                 end
-                % crossover of two offsprings
+                % crossover of two parnet and generate two offsprings
                 temp = offsprings(i, :);
                 offsprings(i, cross_posi_start:cross_posi_end) = offsprings(i+1, cross_posi_start:cross_posi_end);
                 offsprings(i+1, cross_posi_start:cross_posi_end) = temp(cross_posi_start:cross_posi_end);
@@ -94,14 +96,15 @@ function offsprings = two_point_crossover(offsprings, chro_length, idx_start, cr
 end
 
 function offsprings = uniform_crossover(offsprings, chro_length, idx_start, crossover_rate)
-    % for every parent
+    % for every pair of parents
     for i = 1:2:size(offsprings, 1)
         if rand < crossover_rate
-            % for every part of chromosome
+             % for every variable in a chromosome
             for j =1:numel(chro_length)
+                % get the crossover position
                 cross_position = round(rand(chro_length(j),1));
                 cross_position = find(cross_position==1)+idx_start(j)-1;
-                % crossover of two offsprings
+                % crossover of two parnet and generate two offsprings
                 temp = offsprings(i, :);
                 offsprings(i, cross_position) = offsprings(i+1, cross_position);
                 offsprings(i+1, cross_position) = temp(cross_position);

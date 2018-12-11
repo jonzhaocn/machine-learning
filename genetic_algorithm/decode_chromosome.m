@@ -16,7 +16,7 @@ function variables = decode_chromosome(chromosome, chromosome_length, LB, UB)
         error('LB and UB should be a vector')
     end
     variables = cell(1, numel(chromosome_length));
-    % for every variable
+    % for every variable in a chromosome
     for i=1:numel(chromosome_length)
         lower_bound = LB(i);
         upper_bound = UB(i);

@@ -16,6 +16,7 @@ function [population, fitness] = survivor_selection(population, offsprings, fitn
         error('min or max')
     end
     population_size = size(population, 1);
+    % concat the poulation and offsprings and their fitness for sorting
     fitness = [fitness; offsprings_fitness];
     population = [population; offsprings];
     % selection based on the fitness value

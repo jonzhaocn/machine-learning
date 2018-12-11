@@ -35,6 +35,8 @@ function plot_GA(population, fitness, chromosome_length, LB, UB, plot_variables,
     else
         [~, target_index] = min(fitness);
     end
+    % get the nearset point of target_var in plot_variables
+    % and mark the nearest point in plot
     target_chromosome = population(target_index, :);
     target_var = decode_chromosome(target_chromosome, chromosome_length, LB, UB);
     min_map = 0;
